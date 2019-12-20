@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="src" path="/SimP2POverlay"/>
+	<classpathentry kind="lib" path="../ThirdParty/JavaLibraries/Mockito/mockito-core-1.10.19.jar"/>
+	<classpathentry kind="lib" path="../ThirdParty/JavaLibraries/objenesis-2.2/objenesis-2.2.jar"/>
+	<classpathentry kind="lib" path="../ThirdParty/JavaLibraries/commons-collections4-4.1/commons-collections4-4.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

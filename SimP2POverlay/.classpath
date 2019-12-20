@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="../ThirdParty/JavaLibraries/commons-math3-3.5/commons-math3-3.5.jar"/>
+	<classpathentry kind="lib" path="../ThirdParty/JavaLibraries/commons-collections4-4.1/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="../ThirdParty/JavaLibraries/OpenGL/gluegen-2.3-b877-20150730-windows-amd64/jar/gluegen-rt.jar"/>									
+	<classpathentry kind="lib" path="../ThirdParty/JavaLibraries/OpenGL/jogl-2.3-b1415-20150730-windows-amd64/jar/jogl-all.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
