@@ -1,5 +1,7 @@
 package ui.openGL;
 
+import java.util.ArrayList;
+
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -16,12 +18,12 @@ public class OpenGlPrimitives {
 	 * @param y2
 	 * @param drawable
 	 */
-	public static void drawConnector(float x1, float y1, float x2, float y2, float  heigh, GLAutoDrawable drawable)
+	public static ArrayList<Point3D> drawConnector(float x1, float y1, float x2, float y2, float  heigh)
 	{
-		float stepLength = 0.001f;
+		float stepLength = 0.01f;
 		float zMaxHeigh = heigh;
 		
-	
+		ArrayList<Point3D> resultingPointsOfLine = new ArrayList<Point3D>();
 		
 		boolean bSwitched = false;
 		
@@ -55,14 +57,8 @@ public class OpenGlPrimitives {
 		
 		
 		float Xn = (float) (((x2-x1)/2.0)+x1); 
-		GL2 gl = drawable.getGL().getGL2();
-		gl.glLoadIdentity();	    
-		gl.glBegin(GL.GL_LINES);
-		
-		double[] linearParams = LinearAlgebraHelper.CalculateLinearEquation_ABParams(new double[]{x1,y1}, new double[]{x2,y2});
-		
-		double[] quadraticParams = LinearAlgebraHelper.CalculateQuadraticEquation_ABCParams(new double[]{x1,0},new double[]{Xn,zMaxHeigh} ,new double[]{x2,0});
-		
+		double[] linearParams = LinearAlgebraHelper.CalculateLinearEquation_ABParams(new double[]{x1,y1}, new double[]{x2,y2});		
+		double[] quadraticParams = LinearAlgebraHelper.CalculateQuadraticEquation_ABCParams(new double[]{x1,0},new double[]{Xn,zMaxHeigh} ,new double[]{x2,0});		
 		for(float x=x1;x<x2;x=x+stepLength)
 		{
 				float y = (float) (x*linearParams[0]+linearParams[1]);
@@ -70,13 +66,14 @@ public class OpenGlPrimitives {
 				
 				if(!bSwitched)
 				{
-					gl.glVertex3d(x,y,z);	
+					resultingPointsOfLine.add( new Point3D(x, y, z));
+				
 				} else 
 				{
-					gl.glVertex3d(y,x,z);
+					resultingPointsOfLine.add( new Point3D(y, x, z));
 				}						
-		}
-		gl.glEnd();
+		}		
+		return resultingPointsOfLine;
 		
 	}
 	

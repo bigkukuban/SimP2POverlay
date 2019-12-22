@@ -26,6 +26,14 @@ public class BaPreferentialAttachmentAddress implements IPeerAdress {
 		_yPos = yPos;
 	}
 	
+	/* 
+	 * TODO: Distance for preferential attachment depends on the adding time of a peer to the network. We need a kind of addin time for each address. 
+	 * This will be the address and the distance in the difference between addresses.
+	 * 
+	 * The adding time is the address 
+	 * 
+	 */
+	
 	@Override
 	public int GetDistance(IPeerAdress toMe) {
 		return Math.abs(((BaPreferentialAttachmentAddress)toMe).GetPositionX() - GetPositionX()) + Math.abs(((BaPreferentialAttachmentAddress)toMe).GetPositionY() - GetPositionY()) ;		

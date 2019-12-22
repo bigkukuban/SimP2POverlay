@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import commonHelper.interfaces.ICyclicTaskExecuter;
 import commonHelper.math.RandomUtilities;
-import documentTreeModel.implementation.GlobalSimulationParameters;
+
 
 
 public class CyclicTaskExecuter implements ICyclicTaskExecuter, Runnable

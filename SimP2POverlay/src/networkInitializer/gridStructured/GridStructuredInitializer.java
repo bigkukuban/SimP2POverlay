@@ -77,8 +77,8 @@ public class GridStructuredInitializer implements INetworkInitializer
 			if(otherAdress.GetCartesianDistance((GridAddress)peer.GetNetworkAdress()) <= 1.42)
 			{
 				//connect them				
-				peer.AddNeighbour(p, true);
-				p.AddNeighbour(peer, true);
+				peer.AddNeighbour(p);
+				p.AddNeighbour(peer);
 			}
 		}
 		

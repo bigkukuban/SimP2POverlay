@@ -3,7 +3,6 @@ package commonHelper;
 import java.util.ArrayList;
 
 import commonHelper.interfaces.IRandomSelecterDoubleInputObject;
-import documentTreeModel.implementation.GlobalSimulationParameters;
 
 public class RandomSelecterDouble {
 	

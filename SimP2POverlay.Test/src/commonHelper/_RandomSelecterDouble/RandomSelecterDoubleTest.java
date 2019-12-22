@@ -1,16 +1,12 @@
 package commonHelper._RandomSelecterDouble;
 
 import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.Objects;
-
 import org.junit.Test;
-
-import commonHelper.RandomSelecter;
 import commonHelper.RandomSelecterDouble;
 import commonHelper.interfaces.IRandomSelecterDoubleInputObject;
-import commonHelper.interfaces.IRandomSelecterInputObject;
+
 
 public class RandomSelecterDoubleTest {
 	

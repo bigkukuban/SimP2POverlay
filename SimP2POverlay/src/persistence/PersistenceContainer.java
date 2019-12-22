@@ -14,8 +14,7 @@ public class PersistenceContainer implements java.io.Serializable
 	public NetworkSettingsPersistenceBase NetworkSpecialSettings;
 	
 	public int DimensionsNetwork[];
-	public ArrayList<PeerEntry> peerList = new ArrayList<PeerEntry>();
-	public Map<Long, ArrayList<Long>>  ListPeerConnectionsShortRange = new HashMap<Long, ArrayList<Long>>(); 
-	public Map<Long, ArrayList<Long>>  ListPeerConnectionsLongRange = new HashMap<Long, ArrayList<Long>>();
+	public ArrayList<PeerEntry> peerList = new ArrayList<PeerEntry>();	
+	public Map<Long, ArrayList<Long>>  ListPeerConnections = new HashMap<Long, ArrayList<Long>>();
 
 }

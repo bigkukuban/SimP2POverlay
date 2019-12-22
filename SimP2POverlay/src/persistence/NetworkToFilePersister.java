@@ -103,7 +103,7 @@ public class NetworkToFilePersister implements IPersister
 		}		
 		target.SetPeers(createdPeers, container.DimensionsNetwork);
 		
-		for (Entry<Long, ArrayList<Long>> entry : container.ListPeerConnectionsLongRange.entrySet()) {
+		for (Entry<Long, ArrayList<Long>> entry : container.ListPeerConnections.entrySet()) {
 		    Long idPeer = entry.getKey();
 		    ArrayList<Long> contacts = entry.getValue();
 		    IPeer peerSource = target.GetPeerById(idPeer);
@@ -111,11 +111,11 @@ public class NetworkToFilePersister implements IPersister
 		    for(Long taregetId : contacts)
 		    {
 		    	IPeer peerTarget = target.GetPeerById(taregetId);
-		    	peerSource.AddNeighbour(peerTarget, true);
+		    	peerSource.AddNeighbour(peerTarget);
 		    }
 		}
 		
-		for (Entry<Long, ArrayList<Long>> entry : container.ListPeerConnectionsShortRange.entrySet()) {
+		for (Entry<Long, ArrayList<Long>> entry : container.ListPeerConnections.entrySet()) {
 		    Long idPeer = entry.getKey();
 		    ArrayList<Long> contacts = entry.getValue();
 		    IPeer peerSource = target.GetPeerById(idPeer);
@@ -123,7 +123,7 @@ public class NetworkToFilePersister implements IPersister
 		    for(Long taregetId : contacts)
 		    {
 		    	IPeer peerTarget = target.GetPeerById(taregetId);
-		    	peerSource.AddNeighbour(peerTarget, false);
+		    	peerSource.AddNeighbour(peerTarget);
 		    }
 		}
 		
@@ -164,26 +164,16 @@ public class NetworkToFilePersister implements IPersister
 			result.peerList.add(entry);
 			
 			
-			if(!result.ListPeerConnectionsLongRange.containsKey(entry.PeerId))
+			if(!result.ListPeerConnections.containsKey(entry.PeerId))
 			{
-				result.ListPeerConnectionsLongRange.put(entry.PeerId, new ArrayList<Long>());
+				result.ListPeerConnections.put(entry.PeerId, new ArrayList<Long>());
 			}
-			
-			if(!result.ListPeerConnectionsShortRange.containsKey(entry.PeerId))
+								
+			for(IPeer contact : peer.GetAllNeighbours())
 			{
-				result.ListPeerConnectionsShortRange.put(entry.PeerId, new ArrayList<Long>());
+				result.ListPeerConnections.get(entry.PeerId).add(contact.GetPeerID());
 			}
-		
-			for(IPeer contact : peer.GetLongRangeNeighbours())
-			{
-				result.ListPeerConnectionsLongRange.get(entry.PeerId).add(contact.GetPeerID());
-			}
-			
-			for(IPeer contact : peer.GetNearNeighbours())
-			{
-				result.ListPeerConnectionsShortRange.get(entry.PeerId).add(contact.GetPeerID());
-			}
-						
+								
 		}
 		
 		if(settings instanceof NetworkSettingsSmallWorldKleinberg)

@@ -80,8 +80,8 @@ public class BaPreferentialAttachmentInitializer implements INetworkInitializer
 			{
 				next = lstInitializedNodes.get(0);
 			}			
-			p.AddNeighbour(next, true);
-			next.AddNeighbour(p, true);
+			p.AddNeighbour(next);
+			next.AddNeighbour(p);
 		}
 		
 		
@@ -129,7 +129,7 @@ public class BaPreferentialAttachmentInitializer implements INetworkInitializer
 		int iAllConnections = 0;
 		for(IPeer itm : alreadyInitializedPeers)
 		{
-			int connections = itm.GetLongRangeNeighbours().size();
+			int connections = itm.GetAllNeighbours().size();
 			
 			if(!pdfFunction.containsKey(connections))
 			{
@@ -187,12 +187,12 @@ public class BaPreferentialAttachmentInitializer implements INetworkInitializer
 			}
 			
 			IPeer selected = RandomUtilities.SelectOneByRandomFromList(pdfFunction.get(selectedConnectionGroup).IssuedItems);						
-			if(!peer.AddNeighbour(selected, true))
+			if(!peer.AddNeighbour(selected))
 			{
 				m_i--; // try again				
 				continue;
 			}
-			selected.AddNeighbour(peer, true);
+			selected.AddNeighbour(peer);
 		}
 											
 	}

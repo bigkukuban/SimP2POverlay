@@ -1,6 +1,7 @@
 package ui.openGL;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 
 import com.jogamp.opengl.GL;
@@ -9,16 +10,13 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
 
-import commonHelper.GlobalLogger;
 import commonHelper.math.EuclideanPoint;
-import commonHelper.math.LinearAlgebraHelper;
 import commonHelper.math.interfaces.IEuclideanPoint;
-import commonHelper.math.interfaces.IVector;
 import peersModel.interfaces.INetworkFacade;
 import peersModel.interfaces.IPeer;
 import peersModel.interfaces.IPeerAdress;
 import randomWalk.interfaces.IRandomWalkerHost;
-import ui.interfaces.IMouseClickDelegate;
+
 import ui.openGL.interfaces.IPoint3D;
 import ui.openGL.interfaces.IViewModelNetworkDelegate;
 import ui.openGL.interfaces.IViewmodelNetwork;
@@ -28,10 +26,7 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 	private INetworkFacade _myNetwork;
 	private GLAutoDrawable _drawable;
 	private GL2 _gl2;	
-	
-	boolean _renderLongRangeContacts = true;
-	boolean _renderNearRangeContacts = true;
-	
+		
 	float _stepX;
 	float _stepY;	
 	double _radius = 0.0;			
@@ -240,10 +235,7 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 			gl.glColor3f(colorR,colorG,colorB);	
 									
 			_glut.glutWireSphere(_radius, 4, 4);
-			
-			
-			DrawPeerLoadState(peer);
-			DrawPeerLoadBalancingForce(peer);
+										
 			DrawConnections(peer);
 		}		
 	}
@@ -272,111 +264,40 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 		return result;
 	}
 	
-	private void DrawPeerLoadBalancingForce(IPeer peer)
-	{
-		GL2 gl = _drawable.getGL().getGL2();
-		float[] coords = GetPeerCoordinates(peer);
-		IVector loadForce = peer.GetLoadForce();
-		double [] loadForceDirection =  loadForce.GetUnit();
-		double length = loadForce.GetLength(); // normalize the length to 10.000 --> one step
-						
-		length = (1-1/(0.1*length+1))*_stepX*0.5;
 	
-		gl.glPushMatrix();
-		
-		gl.glLoadIdentity();		
-				
-		gl.glTranslatef(coords[0], coords[1], 0.0f);
-				
-		/*
-		gl.glBegin(GL.GL_LINES);			
-			gl.glVertex3d(0,0,_radius);			
-			gl.glVertex3d(5*_radius*loadForceDirection[0],5*_radius*loadForceDirection[1],0);
-		
-		gl.glEnd();
-		*/		
-		gl.glRotated(90,0, 1, 0.0f);
-		
-		double angle = LinearAlgebraHelper.CalculateAngleForVector2D(5*_radius*loadForceDirection[0],5*_radius*loadForceDirection[1]);
-		
-		gl.glRotated(-angle,1, 0, 0);
-		gl.glColor3d(1.3,0,1.5);	
-		_glut.glutWireCone(0.3*_radius, length, 5, 5);
-								
-		//GlobalLogger.LogBroadCasts(" Load direction X"+loadForceDirection[0]+ " Y: "+loadForceDirection[1]+" Length: "+_radius + " angle :"+angle);		 
-		gl.glPopMatrix();
-		
-	}
-	
-	private void DrawPeerLoadState(IPeer peer)
-	{
-		GL2 gl = _drawable.getGL().getGL2();
-		
-		float[] coords = GetPeerCoordinates(peer);
-		
-		double loadState =   Math.log(peer.GetCurrentLoadState())/10;
-					
-		gl.glPushMatrix();
-		gl.glLoadIdentity();		
-		gl.glTranslatef(coords[0], coords[1], 0.0f);				
-	    gl.glBegin(GL.GL_LINES);
-	    gl.glColor3d(100.0,0.0,150.0);	    
-	    gl.glVertex3d(0,0,0);	    
-	    gl.glVertex3d(0,0,loadState);	    
-	    gl.glEnd();
-	    
-	    if(peer.GetCurrentLoadState() > 0)
-		{ 
-		    gl.glLoadIdentity();
-		    gl.glTranslated(coords[0]+_radius*1.2f, coords[1]+_radius/2.0f, (float) _radius*3.0f);
-		    gl.glScaled(_radius*0.01,_radius*0.01, _radius*0.01);
-		    gl.glColor3d(100.0,100.0,0.0);
-		    _glut.glutStrokeString(GLUT.STROKE_ROMAN, String.format("%d", peer.GetCurrentLoadState()));			    	    
-		
-		}
-	    
-	    //peer id 
-	    gl.glLoadIdentity();
-	    gl.glTranslated(coords[0]-_radius*3f, coords[1]+_radius/2.0f, (float) _radius*3.0f);
-	    gl.glScaled(_radius*0.01,_radius*0.01, _radius*0.01);
-	    gl.glColor3d(40.0,0.0,0.0);
-	    _glut.glutStrokeString(GLUT.STROKE_ROMAN, String.format("%d", peer.GetPeerID()));
-	    
-	    gl.glPopMatrix();
-	    //and peer id
-	    
-	}
-	
+			
 	private void DrawConnections(IPeer peer)
 	{
-		GL2 gl = _drawable.getGL().getGL2();
-		
-		float[] sourceCoodrs = GetPeerCoordinates(peer);
-		
-		gl.glLoadIdentity();
-		if(_renderLongRangeContacts )
-		{
-			gl.glColor3f(127,0, 0);
-			for(IPeer neighbour: peer.GetLongRangeNeighbours() )
-			{
-				float[] targetCoords =  GetPeerCoordinates(neighbour);													
-				OpenGlPrimitives.drawConnector(sourceCoodrs[0],sourceCoodrs[1],targetCoords[0],targetCoords[1],0.1f, _drawable);
-			}	
-		}
-		
-		if(_renderNearRangeContacts )
-		{		
-			gl.glColor3f(0,127, 0);
-			for(IPeer neighbour: peer.GetNearNeighbours() )
-			{
-				float[] targetCoords =  GetPeerCoordinates(neighbour);
 				
-				OpenGlPrimitives.drawConnector(sourceCoodrs[0],sourceCoodrs[1],targetCoords[0],targetCoords[1],0.01f, _drawable);
-												
-			}	
-		}			
+		float[] sourceCoodrs = GetPeerCoordinates(peer);								
+		ArrayList<ArrayList<Point3D>> allLines = new ArrayList<ArrayList<Point3D>>();		
+		for(IPeer neighbour: peer.GetAllNeighbours() )
+		{
+			float[] targetCoords =  GetPeerCoordinates(neighbour);			
+			ArrayList<Point3D> linePoints = OpenGlPrimitives.drawConnector(sourceCoodrs[0],sourceCoodrs[1],targetCoords[0],targetCoords[1],0.10f);	
+			allLines.add(linePoints);			
+		}	
+		
+		DrawManyLines(allLines,_drawable.getGL().getGL2());
 	}
 
+	private void DrawManyLines(ArrayList<ArrayList<Point3D>> lines, GL2 gl)
+	{		
+		gl.glLoadIdentity();	    
+		gl.glBegin(GL.GL_LINES);
+		gl.glColor3f(0,127, 0);
+		
+		for(ArrayList<Point3D> line : lines)
+		{
+			for(Point3D pnt : line)
+			{
+				gl.glVertex3d(pnt.GetPosX(),pnt.GetPosY(),pnt.GetPosZ());
+			}
+		}				
+		gl.glEnd();
+		
+	}
+	
 
 	public void Reset()
 	{
@@ -389,34 +310,10 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 		_lookAtPoint.SetPosY(0.5f);
 		_lookAtPoint.SetPosZ(0.0f);
 		
-		_viewAngle = 60f;
-				
-		_renderLongRangeContacts = true;
-		_renderNearRangeContacts = true;
+		_viewAngle = 60f;						
 	}
 	
-
-	public void SetLongRangeContactsShownGui(boolean value)
-	{
-		_renderLongRangeContacts = value;
-		_displayLists.ResetConnectionLists();
-	
-	}
-	public void SetNearContactsShownGui(boolean value)
-	{
-		_renderNearRangeContacts = value;
-		_displayLists.ResetConnectionLists();
-		
-	}
-	public boolean GetLongRangeContactsShownGui()
-	{		
-		return _renderLongRangeContacts;
-	}
-	public boolean GetNearContactsShownGui()
-	{
-		return _renderNearRangeContacts;
-	}
-				
+			
 	public void SetZoomAngle(float zoom)
 	{
 		if(zoom >=180) zoom = 179;

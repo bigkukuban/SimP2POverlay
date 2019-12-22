@@ -122,7 +122,7 @@ public class SmallWorldKleinbergInitializer implements INetworkInitializer
 			if(pData.Distance <=_pParameter)
 			{
 				//set as local contact
-				peer.AddNeighbour(pr,false);
+				peer.AddNeighbour(pr);
 			}
 			
 			((SmallWorldAddress)pr.GetNetworkAdress()).SetPrivateTempData(pData);
@@ -172,7 +172,7 @@ public class SmallWorldKleinbergInitializer implements INetworkInitializer
 			//set him as long-range-neighbor for peer
 			IPeer longRangeContact = RandomUtilities.SelectOneByRandomFromList(distanceProbabilityMap.get(iMinDistanceSelected).IssuedItems);
 			
-			if(!peer.AddNeighbour(longRangeContact, true))
+			if(!peer.AddNeighbour(longRangeContact))
 			{
 				// This place i'm unsure what the right way should be ..., 
 				// should the short range connections be accepted as valid long range connections??

@@ -45,13 +45,7 @@ public interface IViewmodelNetwork {
 	 */
 	void Reset();
 	
-	
-	void SetLongRangeContactsShownGui(boolean value);
-	void SetNearContactsShownGui(boolean value);
-	boolean GetLongRangeContactsShownGui();
-	boolean GetNearContactsShownGui();
-		
-	
+
 	void SetViewPortMouseClickPosition(int xPos, int yPos, boolean withPosUpadate);
 		
 	/**

@@ -1,10 +1,9 @@
 package peersModel.interfaces;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import commonHelper.interfaces.IPeerIdIntoEuclideanAdressConverter;
-import documentTreeModel.interfaces.IDocumentBox;
+
 
 public interface INetworkFacade extends IPeerIdIntoEuclideanAdressConverter {
 
@@ -15,14 +14,5 @@ public interface INetworkFacade extends IPeerIdIntoEuclideanAdressConverter {
 	int[] GetDimenstions();
 	
 	IPeer GetPeerById(Long peerId);
-	
-	Collection<IDocumentBox> GetAllDocumentBoxes(); 
-				
-	void InitializeDocumentBoxesOnPeers(ArrayList<IDocumentBox> docBoxes,IPeer peer);
-	
-	void ChangeCapacityOfPeerBoxes(long value);
-	void ChangeCapacityOfPeerBox(long value, long peerId);
-	
-	void CleanUp();
-			
+		 						
 }
