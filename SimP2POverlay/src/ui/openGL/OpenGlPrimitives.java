@@ -18,7 +18,7 @@ public class OpenGlPrimitives {
 	 * @param y2
 	 * @param drawable
 	 */
-	public static ArrayList<Point3D> drawConnector(float x1, float y1, float x2, float y2, float  heigh)
+	public static ArrayList<Point3D> calculateConnector(float x1, float y1, float x2, float y2, float  heigh)
 	{
 		float stepLength = 0.01f;
 		float zMaxHeigh = heigh;

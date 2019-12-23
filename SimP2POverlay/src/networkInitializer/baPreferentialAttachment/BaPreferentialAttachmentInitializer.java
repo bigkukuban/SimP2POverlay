@@ -55,7 +55,7 @@ public class BaPreferentialAttachmentInitializer implements INetworkInitializer
 				
 				Peer node = new Peer();
 				//assign specific address
-				node.SetNetworkAdress(new BaPreferentialAttachmentAddress(x,y));
+				node.SetNetworkAdress(new BaPreferentialAttachmentAddress(x,y,(int)lPeerIds));
 				//create one address
 				lPeerIds++;
 				node.SetPeerID(lPeerIds);

@@ -14,7 +14,7 @@ public class DrawPrimitives {
 	@Test
 	public void ShouldDrawALine() {
 		
-		ArrayList<Point3D> points = OpenGlPrimitives.drawConnector(0, 0, 1, 1, 2);
+		ArrayList<Point3D> points = OpenGlPrimitives.calculateConnector(0, 0, 1, 1, 2);
 		
 		assertTrue(points.size() > 100);
 		

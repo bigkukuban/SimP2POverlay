@@ -273,8 +273,12 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 		ArrayList<ArrayList<Point3D>> allLines = new ArrayList<ArrayList<Point3D>>();		
 		for(IPeer neighbour: peer.GetAllNeighbours() )
 		{
-			float[] targetCoords =  GetPeerCoordinates(neighbour);			
-			ArrayList<Point3D> linePoints = OpenGlPrimitives.drawConnector(sourceCoodrs[0],sourceCoodrs[1],targetCoords[0],targetCoords[1],0.10f);	
+			float[] targetCoords =  GetPeerCoordinates(neighbour);	
+									
+			//dinstance = 1 --> 0.01 heigth
+			float lineHeight = 0.1f;						
+			
+			ArrayList<Point3D> linePoints = OpenGlPrimitives.calculateConnector(sourceCoodrs[0],sourceCoodrs[1],targetCoords[0],targetCoords[1],lineHeight);	
 			allLines.add(linePoints);			
 		}	
 		
@@ -284,17 +288,19 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 	private void DrawManyLines(ArrayList<ArrayList<Point3D>> lines, GL2 gl)
 	{		
 		gl.glLoadIdentity();	    
-		gl.glBegin(GL.GL_LINES);
-		gl.glColor3f(0,127, 0);
+		
 		
 		for(ArrayList<Point3D> line : lines)
 		{
-			for(Point3D pnt : line)
-			{
-				gl.glVertex3d(pnt.GetPosX(),pnt.GetPosY(),pnt.GetPosZ());
-			}
+			gl.glBegin(GL.GL_LINES);
+			gl.glColor3f(0,127, 0);
+				for(Point3D pnt : line)
+				{
+					gl.glVertex3d(pnt.GetPosX(),pnt.GetPosY(),pnt.GetPosZ());
+				}
+			gl.glEnd();
 		}				
-		gl.glEnd();
+		
 		
 	}
 	

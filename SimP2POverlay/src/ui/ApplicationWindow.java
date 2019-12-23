@@ -228,7 +228,7 @@ public class ApplicationWindow {
 	
 	private static Dimension CalculateNewSizeForOpenGlCanvas(Component cmp)
 	{
-		return  new Dimension(cmp.getSize().width-30, cmp.getSize().height-150);
+		return  new Dimension(cmp.getSize().width-30, cmp.getSize().height-180);
 	}
 	
 	ComponentListener _jFrameComponentListener = new ComponentListener()
@@ -486,7 +486,7 @@ public class ApplicationWindow {
 			
 			if(arg0.getActionCommand() == "letChangeTopology")
 			{
-				JComboBox comboBox = (JComboBox) arg0.getSource();
+				JComboBox<Item> comboBox = (JComboBox<Item>) arg0.getSource();
                 Item item = (Item) comboBox.getSelectedItem();
                 DoSwitchToNewTopology(item.type);
 			}

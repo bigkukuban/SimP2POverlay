@@ -20,10 +20,18 @@ public class BaPreferentialAttachmentAddress implements IPeerAdress {
 		return _yPos;
 	}
 	
-	public BaPreferentialAttachmentAddress(int xPos, int yPos)
+	int _birthPosition = 0;	
+	public int GetBirthPosition()
+	{
+		return _birthPosition;
+	}
+	
+	
+	public BaPreferentialAttachmentAddress(int xPos, int yPos, int birthPosition)
 	{
 		_xPos = xPos;
 		_yPos = yPos;
+		_birthPosition = birthPosition;
 	}
 	
 	/* 
@@ -36,7 +44,7 @@ public class BaPreferentialAttachmentAddress implements IPeerAdress {
 	
 	@Override
 	public int GetDistance(IPeerAdress toMe) {
-		return Math.abs(((BaPreferentialAttachmentAddress)toMe).GetPositionX() - GetPositionX()) + Math.abs(((BaPreferentialAttachmentAddress)toMe).GetPositionY() - GetPositionY()) ;		
+		return Math.abs(((BaPreferentialAttachmentAddress)toMe)._birthPosition - _birthPosition) ;		
 	}
 	
 	@Override
