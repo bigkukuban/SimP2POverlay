@@ -1,7 +1,4 @@
 package ui;
-
-
-
 import commonHelper.math.EuclideanPoint;
 import launcher.ApplicationModelSettings;
 import launcher.ApplicationModelSettings.SupportedTopologyTypes;
@@ -70,30 +67,13 @@ public class AppWindowActions
 	public void UsedResetedTheView()
 	{
 		_openGlView._networkViewModel.Reset();
-		_openGlView.UpdateCanvas();
-		
-		/**
-		 * //ApplicationWindow.this._networkViewModel.Reset();
-			
-			EventQueue.invokeLater(new Runnable(){
-				public void run() 
-				{
-					try {
-						ApplicationWindow.this.UpdateUISettings();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}});
-			
-			//UpdateCanvas();	
-		 */
+		_openGlView.UpdateCanvas();			
 	}
 		
 	public void UserChangedCameraPosInApplilcationView(double dxPos, double dyPos, double dzPos)
 	{
 		_openGlView._networkViewModel.PlaceNewEventDelegate(new EventChangeCameraPosition(new EuclideanPoint(new double[]{dxPos,dyPos,dzPos})));	  
-		_openGlView.UpdateCanvas();
-		
+		_openGlView.UpdateCanvas();		
 	}
 	
 	public void UserChangedSettingsForSmallWorld(int xItems, int yItems, int qParam, int pParam, double rParam)
@@ -109,8 +89,8 @@ public class AppWindowActions
 		{
 			ApplicationSettings.NetworkFacade = CreateNetwork(settings);
 			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));	
-		}
-		
+			_openGlView.UpdateCanvas();
+		}		
 	}
 	
 	public void UserChangedSettingsForPreferentialAttachment(int m0, int m, int n)
@@ -123,9 +103,9 @@ public class AppWindowActions
 		if(ApplicationSettings.ActiveSettings == settings)
 		{
 			ApplicationSettings.NetworkFacade = CreateNetwork(settings);
-			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));	
-		}
-		
+			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));
+			_openGlView.UpdateCanvas();
+		}		
 	}
 	
 	public void UserChangedSettingsForGrid(int numXItems, int numYItems)
@@ -139,8 +119,8 @@ public class AppWindowActions
 		{
 			ApplicationSettings.NetworkFacade = CreateNetwork(settings);
 			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));	
-		}
-		
+			_openGlView.UpdateCanvas();
+		}		
 	}
 	
 	public void UserChangedToOtherTopology(SupportedTopologyTypes newTopology)

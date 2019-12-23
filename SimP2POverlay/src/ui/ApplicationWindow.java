@@ -7,10 +7,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.File;
+import java.util.Arrays;
 import java.awt.event.ActionEvent;
 import javax.swing.JPanel;
 import com.jogamp.opengl.awt.GLCanvas;
 
+import launcher.ApplicationModelSettings;
 import launcher.ApplicationModelSettings.SupportedTopologyTypes;
 import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
 import networkInitializer.gridStructured.NetworkSettingsGrid;
@@ -34,7 +36,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JMenu;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.DefaultComboBoxModel;
 
 public class ApplicationWindow {
@@ -82,6 +83,11 @@ public class ApplicationWindow {
         			 			new Item(SupportedTopologyTypes.SmallWorld, "Small World")
         			 			};
         }
+        
+        public static Item GetItemByEnum(SupportedTopologyTypes type, Item[] source)
+        {
+        	return Arrays.stream(source).filter(o -> o.type == type).findFirst().get();        	
+        }
     }
 
 	
@@ -110,7 +116,7 @@ public class ApplicationWindow {
 		_openGLpanel = new JPanel();
 		_openGLpanel.setBackground(Color.BLACK);
 		Dimension dim = CalculateNewSizeForOpenGlCanvas(frame);
-		_openGLpanel.setBounds(10, 87, 944,  558);
+		_openGLpanel.setBounds(10, 116, 938,  534);
 		_openGLpanel.setLayout(new BorderLayout(0, 0));
 		frame.getContentPane().add(_openGLpanel);
 
@@ -207,8 +213,9 @@ public class ApplicationWindow {
 		comboBox.setModel(new DefaultComboBoxModel<Item>(supportedItems));
 		comboBox.setBounds(10, 21, 185, 20);
 		comboBox.setPreferredSize(new Dimension(120, 20));
-		comboBox.setActionCommand("letChangeTopology");
-		//todo: comboBox.setSelectedItem(anObject);
+		comboBox.setActionCommand("letChangeTopology");				
+		comboBox.setSelectedItem(Item.GetItemByEnum(ApplicationModelSettings.ConvertTypeToEnum(_actionsHandler.ApplicationSettings.ActiveSettings),supportedItems));		
+		
 		topologyPanel.add(comboBox);
 						
 		mntmMenuItemGridSettings.addActionListener(_actionListenerButtons);

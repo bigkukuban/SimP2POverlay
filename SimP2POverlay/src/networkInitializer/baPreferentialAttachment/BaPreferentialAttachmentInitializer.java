@@ -21,10 +21,9 @@ public class BaPreferentialAttachmentInitializer implements INetworkInitializer
 	public BaPreferentialAttachmentInitializer(NetworkSettingsBaPreferentialAttachment parameter) throws Exception
 	{
 		if(parameter.m > parameter.m0 ) throw new Exception("wrong parameters (m,m0)");
-		if(parameter.N < parameter.m0 ) throw new Exception("wrong parameters (N, m0)");
+		if(parameter.N < parameter.m0 ) throw new Exception("wrong parameters (N,m0)");
 				
-		_settings = parameter;
-				
+		_settings = parameter;				
 	}
 	
 	@Override

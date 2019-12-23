@@ -41,6 +41,26 @@ public class ApplicationModelSettings
 		return typeToSelect;
 	}
 	
+	public static SupportedTopologyTypes ConvertTypeToEnum(NetworkSettingsBase supType)
+	{				
+		if(supType instanceof NetworkSettingsBaPreferentialAttachment)
+		{
+			return SupportedTopologyTypes.PreferentialAttachment;			
+		}
+		
+		if(supType instanceof NetworkSettingsSmallWorldKleinberg)
+		{
+			return SupportedTopologyTypes.SmallWorld;			
+		}
+		
+		if(supType instanceof NetworkSettingsGrid)
+		{
+			return SupportedTopologyTypes.Grid;					
+		}
+		
+		return SupportedTopologyTypes.Unknown;
+	}		
+	
 	public NetworkSettingsBase GetSettingsByType(SupportedTopologyTypes supType)
 	{	
 		return AllGraphSettings.stream().filter(o -> o.getClass().equals(ConvertEnumToType(supType) ) ).findFirst().get();
