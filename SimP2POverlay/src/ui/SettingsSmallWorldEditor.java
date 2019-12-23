@@ -29,8 +29,9 @@ public class SettingsSmallWorldEditor  extends JDialog {
 	
 	public SettingsSmallWorldEditor(Frame parentFrame, int itemsInX, int itemsInY, int qParameter, int pParameter, double rParameter) 
 	{
-		setModalityType(ModalityType.DOCUMENT_MODAL);
-		this.setTitle("Small-World settings");
+		super(parentFrame,"Small-World settings", true);
+		
+		setModalityType(ModalityType.DOCUMENT_MODAL);		
 		setPreferredSize(new Dimension(320, 200));
 		setSize(new Dimension(320, 200));
 		setResizable(false);

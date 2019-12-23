@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import com.jogamp.opengl.awt.GLCanvas;
 
 import launcher.ApplicationModelSettings.SupportedTopologyTypes;
+import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
 import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
 import ui.interfaces.IMouseClickDelegate;
@@ -22,7 +23,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.Dimension;
 
 import javax.swing.JTextPane;
@@ -50,7 +50,41 @@ public class ApplicationWindow {
 	JSlider _cameraSliderXPos;
 	JSlider _cameraSliderZPos;
 	JTextPane textPaneLongRangeContacts;
-        		
+     
+	private static class Item {
+
+        private SupportedTopologyTypes type = SupportedTopologyTypes.Unknown;
+        private String description;
+
+        public Item(SupportedTopologyTypes tp, String description) {
+            this.type = tp;
+            this.description = description;
+        }
+
+        public SupportedTopologyTypes getType() {
+            return type;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        @Override
+        public String toString() {
+            return description;
+        }
+        
+        public static Item[] GetSupportedTopologies()
+        {
+        	 return new Item[] {
+        			 			new Item(SupportedTopologyTypes.Grid, "Grid"),
+        			 			new Item(SupportedTopologyTypes.PreferentialAttachment, "Preferential Attachment"),
+        			 			new Item(SupportedTopologyTypes.SmallWorld, "Small World")
+        			 			};
+        }
+    }
+
+	
 	/**
 	 * Create the application.
 	 */
@@ -168,13 +202,19 @@ public class ApplicationWindow {
 		frame.getContentPane().add(topologyPanel);
 		topologyPanel.setLayout(null);
 		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Grid", "Preferential Attachment"}));
+		JComboBox<Item> comboBox = new JComboBox<Item>();
+		Item[]  supportedItems = Item.GetSupportedTopologies();
+		comboBox.setModel(new DefaultComboBoxModel<Item>(supportedItems));
 		comboBox.setBounds(10, 21, 185, 20);
 		comboBox.setPreferredSize(new Dimension(120, 20));
+		comboBox.setActionCommand("letChangeTopology");
+		//todo: comboBox.setSelectedItem(anObject);
 		topologyPanel.add(comboBox);
+						
 		mntmMenuItemGridSettings.addActionListener(_actionListenerButtons);
 		mntmSmallworldSettings.addActionListener(_actionListenerButtons);
+		mntmPreferentialattachmentSettings.addActionListener(_actionListenerButtons);
+		comboBox.addActionListener(_actionListenerButtons);
 								
 		InitializeCustom(glCanvas);									
 	}
@@ -349,9 +389,19 @@ public class ApplicationWindow {
 		frame.setTitle(filePath);
 	}
 
-	private void DoSetupNetwork()
-	{				
-		_actionsHandler.UserInitializedNetworkInApplicationView();			
+	private void DoConfigurePreferentialAttachmentSettings()
+	{
+		NetworkSettingsBaPreferentialAttachment settings = (NetworkSettingsBaPreferentialAttachment)_actionsHandler.
+																		ApplicationSettings.
+																		GetSettingsByType(SupportedTopologyTypes.PreferentialAttachment);
+		
+		SettingsPreferentialAttachmentEditor paSettingsFrame = new SettingsPreferentialAttachmentEditor(frame, settings.m0, settings.m,settings.N);
+		paSettingsFrame.pack();
+		paSettingsFrame.setLocationRelativeTo(frame);
+		paSettingsFrame.setVisible(true);
+		int[] params = paSettingsFrame.GetResult();
+		
+		_actionsHandler.UserChangedSettingsForPreferentialAttachment(params[0], params[1], params[2]);
 	}
 	
 	private void DoConfigureSmallWorldSettings()
@@ -372,6 +422,7 @@ public class ApplicationWindow {
 		
 		_actionsHandler.UserChangedSettingsForSmallWorld(res.xItems,res.yItems,res.qParam,res.pParam, res.rParam);
 	}
+	
 	private void DoConfigureGridSettings()
 	{
 		//send a broad cast				
@@ -386,6 +437,11 @@ public class ApplicationWindow {
 		int[] xySizes = gridSettingsFrame.GetResult();
 		
 		_actionsHandler.UserChangedSettingsForGrid(xySizes[0], xySizes[1]);
+	}
+	
+	private void DoSwitchToNewTopology(SupportedTopologyTypes topologyType)
+	{
+		_actionsHandler.UserChangedToOtherTopology(topologyType);
 	}
 	
 	ActionListener _actionListenerButtons  = new ActionListener() 
@@ -415,6 +471,19 @@ public class ApplicationWindow {
 			{
 				DoConfigureSmallWorldSettings();
 			}
+			
+			if(arg0.getActionCommand() == "letConfigurePreferentialAttachmentSettings")
+			{
+				DoConfigurePreferentialAttachmentSettings();
+			}
+			
+			if(arg0.getActionCommand() == "letChangeTopology")
+			{
+				JComboBox comboBox = (JComboBox) arg0.getSource();
+                Item item = (Item) comboBox.getSelectedItem();
+                DoSwitchToNewTopology(item.type);
+			}
+									
 		}		
 	};
 }

@@ -88,43 +88,7 @@ public class AppWindowActions
 			//UpdateCanvas();	
 		 */
 	}
-	
-	public void UserInitializedNetworkInApplicationView()
-	{
-		/*
-		NetworkSettingsSmallWorldKleinberg settings = new NetworkSettingsSmallWorldKleinberg();
 		
-		settings._pPParameter = _settingsKleinberg._pPParameter;
-		settings._qParameter = _settingsKleinberg._qParameter;
-		settings._rParameter = _settingsKleinberg._rParameter;
-		settings._xLength = _settingsKleinberg._xLength;		
-		settings._yLength = _settingsKleinberg._yLength;
-		*/
-	
-		NetworkSettingsBaPreferentialAttachment settings = new NetworkSettingsBaPreferentialAttachment();
-		settings.m = 1;
-		settings.m0 = 2;
-		settings.N = 50;
-						
-		//NetworkSettingsGrid settings = new NetworkSettingsGrid(_settingsKleinberg._xLength,_settingsKleinberg._yLength);
-				
-		INetworkInitializer peerBoxInitializer  = null;
-		
-		try{		
-			peerBoxInitializer =  InitializerFactory.GetInitializerBySettingsType(settings, true);					
-									
-			INetworkFacade facade = peerBoxInitializer.GetInitializedNetwork();																					
-			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(facade));	   	        	        		        
-								
-		}catch(Exception exp)
-		{
-			exp.printStackTrace(System.err);
-		}
-		
-		_openGlView.UpdateCanvas();
-		 				 
-	}
-	
 	public void UserChangedCameraPosInApplilcationView(double dxPos, double dyPos, double dzPos)
 	{
 		_openGlView._networkViewModel.PlaceNewEventDelegate(new EventChangeCameraPosition(new EuclideanPoint(new double[]{dxPos,dyPos,dzPos})));	  
@@ -149,6 +113,21 @@ public class AppWindowActions
 		
 	}
 	
+	public void UserChangedSettingsForPreferentialAttachment(int m0, int m, int n)
+	{
+		NetworkSettingsBaPreferentialAttachment settings = (NetworkSettingsBaPreferentialAttachment)ApplicationSettings.GetSettingsByType(SupportedTopologyTypes.PreferentialAttachment);
+		settings.m = m;
+		settings.m0 = m0;
+		settings.N = n;
+				
+		if(ApplicationSettings.ActiveSettings == settings)
+		{
+			ApplicationSettings.NetworkFacade = CreateNetwork(settings);
+			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));	
+		}
+		
+	}
+	
 	public void UserChangedSettingsForGrid(int numXItems, int numYItems)
 	{
 		NetworkSettingsGrid settings = (NetworkSettingsGrid)ApplicationSettings.GetSettingsByType(SupportedTopologyTypes.Grid);
@@ -161,6 +140,19 @@ public class AppWindowActions
 			ApplicationSettings.NetworkFacade = CreateNetwork(settings);
 			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));	
 		}
+		
+	}
+	
+	public void UserChangedToOtherTopology(SupportedTopologyTypes newTopology)
+	{
+		//set new topology as active one, generate the network and update the ui
+		
+		NetworkSettingsBase settings = ApplicationSettings.GetSettingsByType(newTopology);
+		ApplicationSettings.ActiveSettings = settings;
+		
+		ApplicationSettings.NetworkFacade = CreateNetwork(ApplicationSettings.ActiveSettings);
+		_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));
+		_openGlView.UpdateCanvas();
 		
 	}
 	
