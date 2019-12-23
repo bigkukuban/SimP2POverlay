@@ -3,34 +3,47 @@ package launcher;
 import java.util.ArrayList;
 
 import networkInitializer.NetworkSettingsBase;
+import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
+import networkInitializer.gridStructured.NetworkSettingsGrid;
+import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
 import peersModel.interfaces.INetworkFacade;
 
 public class ApplicationModelSettings 
 {
-
-	public NetworkSettingsBase GetActiveNetworkSettings()
+	public enum SupportedTopologyTypes
 	{
-		return null;
+		PreferentialAttachment, SmallWorld, Grid, Unknown
 	}
 	
-	public void SetNetworkSettings(NetworkSettingsBase newSettings)
+	public NetworkSettingsBase ActiveSettings = null;
+	public ArrayList<NetworkSettingsBase>  AllGraphSettings = new ArrayList<NetworkSettingsBase>();
+	public INetworkFacade NetworkFacade = null;
+	
+	public static Class<?> ConvertEnumToType(SupportedTopologyTypes supType)
 	{
+		Class<?> typeToSelect = null;
 		
-	}
-	
-	public ArrayList<NetworkSettingsBase> GetAllNetworkSettings()
-	{
-		return null;
-	}
-	
-	public INetworkFacade GetCurrentFacade()
-	{
-		return null;
-	}
-	
-	public void SetCurrentFacade(INetworkFacade facade)
-	{
+		if(supType ==  SupportedTopologyTypes.PreferentialAttachment)
+		{
+			typeToSelect = NetworkSettingsBaPreferentialAttachment.class;
+		}
 		
+		if(supType ==  SupportedTopologyTypes.SmallWorld)
+		{
+			typeToSelect = NetworkSettingsSmallWorldKleinberg.class;
+		}
+		
+		if(supType ==  SupportedTopologyTypes.Grid)
+		{
+			typeToSelect = NetworkSettingsGrid.class;
+		}
+		
+		return typeToSelect;
 	}
 	
+	public NetworkSettingsBase GetSettingsByType(SupportedTopologyTypes supType)
+	{	
+		return AllGraphSettings.stream().filter(o -> o.getClass().equals(ConvertEnumToType(supType) ) ).findFirst().get();
+	}
+		
 }

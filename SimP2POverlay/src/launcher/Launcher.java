@@ -6,7 +6,11 @@ import ui.AppWindowActions;
 import ui.ApplicationWindow;
 import ui.OpenGLView;
 
-public class Launcher {
+public class Launcher 
+{
+	
+
+	
 
 	/**
 	 * Launch the application.

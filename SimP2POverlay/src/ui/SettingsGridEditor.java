@@ -1,7 +1,5 @@
 package ui;
 
-import javax.swing.JFrame;
-
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -87,7 +85,7 @@ public class SettingsGridEditor extends JDialog
 	public int[] GetResult()
 	{
 		int xItems =  new Integer(textFieldItemsInX.getText());
-		int yItems =  new Integer(textFieldItemsInX.getText());
+		int yItems =  new Integer(textFieldItemsInY.getText());
 		
 		return new int[]{xItems,yItems};
 	}

@@ -1,10 +1,14 @@
 package ui;
 
-import java.awt.EventQueue;
+
 
 import commonHelper.math.EuclideanPoint;
+import launcher.ApplicationModelSettings;
+import launcher.ApplicationModelSettings.SupportedTopologyTypes;
 import networkInitializer.InitializerFactory;
+import networkInitializer.NetworkSettingsBase;
 import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
+import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.interfaces.INetworkInitializer;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
 import peersModel.implementation.NetworkFacade;
@@ -17,10 +21,44 @@ import ui.openGL.ViewModelNetworkEvent.EventChangeZoomFactor;
 
 public class AppWindowActions 
 {
+		
+	public static ApplicationModelSettings CreateInitialModelSettings()
+	{
+		ApplicationModelSettings result = new ApplicationModelSettings();
+		
+		result.AllGraphSettings.add(new NetworkSettingsGrid(10,10));
+		result.AllGraphSettings.add(new NetworkSettingsSmallWorldKleinberg(10,10,1,1,1.0));	
+		result.AllGraphSettings.add(new NetworkSettingsBaPreferentialAttachment(2,2,100));
+		
+		result.ActiveSettings = result.AllGraphSettings.stream().
+									  filter(s -> s instanceof NetworkSettingsBaPreferentialAttachment).
+									  findFirst().get();
+
+		result.NetworkFacade = CreateNetwork(result.ActiveSettings);
+		
+		return result;
+	}
+	
+	public static INetworkFacade CreateNetwork(NetworkSettingsBase settings)
+	{
+		INetworkFacade result = null;				
+		try {
+			INetworkInitializer peerBoxInitializer = InitializerFactory.GetInitializerBySettingsType(settings, true);
+			result = peerBoxInitializer.GetInitializedNetwork();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+		return result;
+	}
+	
+	
 	OpenGLView _openGlView;
+	public ApplicationModelSettings ApplicationSettings = null;
 	public AppWindowActions(OpenGLView openGlView)
 	{
 		_openGlView = openGlView; 
+		ApplicationSettings = CreateInitialModelSettings();
 	}
 	
 	public void UserChangedZoomValue(int zoomValue)
@@ -94,8 +132,35 @@ public class AppWindowActions
 		
 	}
 	
+	public void UserChangedSettingsForSmallWorld(int xItems, int yItems, int qParam, int pParam, double rParam)
+	{				
+		NetworkSettingsSmallWorldKleinberg settings = (NetworkSettingsSmallWorldKleinberg)ApplicationSettings.GetSettingsByType(SupportedTopologyTypes.SmallWorld);
+		settings._xLength = xItems;
+		settings._yLength = yItems;
+		settings._qParameter = qParam;
+		settings._pPParameter = pParam;
+		settings._rParameter = rParam;
+		
+		if(ApplicationSettings.ActiveSettings == settings)
+		{
+			ApplicationSettings.NetworkFacade = CreateNetwork(settings);
+			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));	
+		}
+		
+	}
+	
 	public void UserChangedSettingsForGrid(int numXItems, int numYItems)
 	{
+		NetworkSettingsGrid settings = (NetworkSettingsGrid)ApplicationSettings.GetSettingsByType(SupportedTopologyTypes.Grid);
+		
+		settings.XLength = numXItems;
+		settings.YLength = numYItems;
+		
+		if(ApplicationSettings.ActiveSettings == settings)
+		{
+			ApplicationSettings.NetworkFacade = CreateNetwork(settings);
+			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));	
+		}
 		
 	}
 	

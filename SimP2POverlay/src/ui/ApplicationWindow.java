@@ -10,6 +10,10 @@ import java.io.File;
 import java.awt.event.ActionEvent;
 import javax.swing.JPanel;
 import com.jogamp.opengl.awt.GLCanvas;
+
+import launcher.ApplicationModelSettings.SupportedTopologyTypes;
+import networkInitializer.gridStructured.NetworkSettingsGrid;
+import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
 import ui.interfaces.IMouseClickDelegate;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -170,6 +174,7 @@ public class ApplicationWindow {
 		comboBox.setPreferredSize(new Dimension(120, 20));
 		topologyPanel.add(comboBox);
 		mntmMenuItemGridSettings.addActionListener(_actionListenerButtons);
+		mntmSmallworldSettings.addActionListener(_actionListenerButtons);
 								
 		InitializeCustom(glCanvas);									
 	}
@@ -349,12 +354,31 @@ public class ApplicationWindow {
 		_actionsHandler.UserInitializedNetworkInApplicationView();			
 	}
 	
-	
+	private void DoConfigureSmallWorldSettings()
+	{
+		//send a broad cast				
+		//DoSetupNetwork();
+		NetworkSettingsSmallWorldKleinberg settings = (NetworkSettingsSmallWorldKleinberg)_actionsHandler.ApplicationSettings.GetSettingsByType(SupportedTopologyTypes.SmallWorld);
+		
+		SettingsSmallWorldEditor gridSettingsFrame = new SettingsSmallWorldEditor(frame, settings._xLength, 
+																				 settings._yLength, settings._qParameter, 
+																				 settings._pPParameter, 
+																				 settings._rParameter);
+		gridSettingsFrame.pack();
+		gridSettingsFrame.setLocationRelativeTo(frame);
+		gridSettingsFrame.setVisible(true);
+		
+		SettingsSmallWorldEditor.Result res = gridSettingsFrame.GetResult();
+		
+		_actionsHandler.UserChangedSettingsForSmallWorld(res.xItems,res.yItems,res.qParam,res.pParam, res.rParam);
+	}
 	private void DoConfigureGridSettings()
 	{
 		//send a broad cast				
 		//DoSetupNetwork();
-		SettingsGridEditor gridSettingsFrame = new SettingsGridEditor(frame, 1, 1);
+		NetworkSettingsGrid settings = (NetworkSettingsGrid)_actionsHandler.ApplicationSettings.GetSettingsByType(SupportedTopologyTypes.Grid);
+		
+		SettingsGridEditor gridSettingsFrame = new SettingsGridEditor(frame, settings.XLength, settings.YLength);
 		gridSettingsFrame.pack();
 		gridSettingsFrame.setLocationRelativeTo(frame);
 		gridSettingsFrame.setVisible(true);
@@ -386,6 +410,10 @@ public class ApplicationWindow {
 			if(arg0.getActionCommand() == "letConfigureGridSettings")
 			{
 				DoConfigureGridSettings();
+			}
+			if(arg0.getActionCommand() == "letConfigureSmallWorldSettings")
+			{
+				DoConfigureSmallWorldSettings();
 			}
 		}		
 	};
