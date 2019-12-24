@@ -1,12 +1,10 @@
 package persistence.interfaces;
 
-import peersModel.interfaces.INetworkFacade;
-
+import launcher.ApplicationModelSettings;
 
 public interface IPersister {
 	
-	boolean DoPersistNetwork(INetworkFacade facade,networkInitializer.NetworkSettingsBase settings);
-	boolean DoRestoreNetwork(INetworkFacade facade);
-	networkInitializer.NetworkSettingsBase GetLastRestoredNetworkSettings();	
-	
+	boolean DoPersistNetwork(ApplicationModelSettings input,String targetPath);
+	ApplicationModelSettings DoRestoreNetwork(String filePath);
+			
 }

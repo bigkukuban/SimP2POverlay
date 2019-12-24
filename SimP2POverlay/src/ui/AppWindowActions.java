@@ -8,9 +8,7 @@ import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferential
 import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.interfaces.INetworkInitializer;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
-import peersModel.implementation.NetworkFacade;
 import peersModel.interfaces.INetworkFacade;
-import peersModel.interfaces.IPeer;
 import persistence.NetworkToFilePersister;
 import ui.openGL.ViewModelNetworkEvent.EventAssignNewNetwork;
 import ui.openGL.ViewModelNetworkEvent.EventChangeCameraPosition;
@@ -95,6 +93,9 @@ public class AppWindowActions
 	
 	public void UserChangedSettingsForPreferentialAttachment(int m0, int m, int n)
 	{
+		if(m > m0 || n < m0) return; 
+		
+		
 		NetworkSettingsBaPreferentialAttachment settings = (NetworkSettingsBaPreferentialAttachment)ApplicationSettings.GetSettingsByType(SupportedTopologyTypes.PreferentialAttachment);
 		settings.m = m;
 		settings.m0 = m0;

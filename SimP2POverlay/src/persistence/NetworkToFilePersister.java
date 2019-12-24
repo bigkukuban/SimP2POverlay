@@ -6,9 +6,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import launcher.ApplicationModelSettings;
+import launcher.ApplicationModelSettings.SupportedTopologyTypes;
 import networkInitializer.NetworkSettingsBase;
+import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
+import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
 import networkInitializer.smallWorldKleinberg.SmallWorldAddress;
 import peersModel.implementation.Peer;
@@ -19,6 +27,104 @@ import persistence.interfaces.IPersister;
 public class NetworkToFilePersister implements IPersister
 {
 
+	@Override
+	public boolean DoPersistNetwork(ApplicationModelSettings input, String targetPath) {
+
+		return false;
+	}
+
+	@Override
+	public ApplicationModelSettings DoRestoreNetwork(String filePath) {
+
+		return null;
+	}
+	
+	
+	public static PersistenceContainer ToPersistenceContainer(ApplicationModelSettings input)
+	{
+		PersistenceContainer result = new PersistenceContainer();
+	
+		result.DimensionsNetwork = input.NetworkFacade.GetDimenstions();
+		result.NetworkSpecialSettings = ToPersistenceFormat(input.AllGraphSettings);
+		result.CurrentActiveSettings = ToPersistenceFormatType(input.ActiveSettings);
+		result.ListPeerConnections = ToPersistenceFormat(input.NetworkFacade);
+		result.peerList = ToPersistenceFormatPeers(input.NetworkFacade.GetPeers());
+		
+		return result;
+	}
+	
+	public static ArrayList<PeerEntry> ToPersistenceFormatPeers( ArrayList<IPeer> peers)
+	{
+		ArrayList<PeerEntry>  result = new ArrayList<PeerEntry>();
+		
+		return result;
+	}
+	
+	public static Map<Long, ArrayList<Long>> ToPersistenceFormat(INetworkFacade facade)
+	{
+		HashMap<Long, ArrayList<Long>> result = new HashMap<Long, ArrayList<Long>>();
+			
+		for(IPeer pr : facade.GetPeers())
+		{
+			long peerId = pr.GetPeerID();			
+			List<Long> allNeigboursIds =pr.GetAllNeighbours().stream().map(o -> o.GetPeerID()).collect(Collectors.toList());			
+			ArrayList<Long> arrLst = new ArrayList<Long>(allNeigboursIds);
+			result.put(peerId, arrLst);
+		}
+		
+		return result;
+	}
+	
+	public static int ToPersistenceFormatType(NetworkSettingsBase address)
+	{
+		if(address instanceof NetworkSettingsBaPreferentialAttachment)
+		{
+			return 3;			
+		}
+		
+		if(address instanceof NetworkSettingsSmallWorldKleinberg)
+		{
+			return 2;			
+		}
+		
+		if(address instanceof NetworkSettingsGrid)
+		{
+			return 1;					
+		}					
+		return 0;
+	}
+	
+	public static ArrayList<NetworkSettingsPersistenceBase>  ToPersistenceFormat(ArrayList<NetworkSettingsBase> input)
+	{
+		 
+		ArrayList<NetworkSettingsPersistenceBase> result ;		
+		List<NetworkSettingsPersistenceBase> allAddresses = input.stream().map(o -> ToPersistenceFormat(o)).collect(Collectors.toList());		 
+		result = new ArrayList<NetworkSettingsPersistenceBase>(allAddresses);
+		
+		return result;
+	}
+	
+	public static NetworkSettingsPersistenceBase ToPersistenceFormat(NetworkSettingsBase input)
+	{
+		if(input instanceof NetworkSettingsBaPreferentialAttachment)
+		{
+			return new NetworkSettingsPersistencePreferentialAttachment(){  };			
+		}
+		
+		if(input instanceof NetworkSettingsSmallWorldKleinberg)
+		{
+			return new NetworkSettingsPersistenceSmallWorldKleinberg();			
+		}
+		
+		if(input instanceof NetworkSettingsGrid)
+		{
+			return new NetworkSettingsPersistenceGrid();					
+		}	
+		
+		return null;
+	}
+	
+/*
 	String _fullPathToFile = "";
 	private NetworkSettingsBase _lastCreatedNetworkSettings;
 	
@@ -192,6 +298,6 @@ public class NetworkToFilePersister implements IPersister
 		
 		return result;
 	}
-	
+	*/
 	
 }
