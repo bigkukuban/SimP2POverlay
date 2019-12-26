@@ -9,34 +9,55 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import launcher.ApplicationModelSettings;
 import launcher.ApplicationModelSettings.SupportedTopologyTypes;
 import networkInitializer.NetworkSettingsBase;
+import networkInitializer.baPreferentialAttachment.BaPreferentialAttachmentAddress;
 import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
+import networkInitializer.gridStructured.GridAddress;
 import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
 import networkInitializer.smallWorldKleinberg.SmallWorldAddress;
-import peersModel.implementation.Peer;
 import peersModel.interfaces.INetworkFacade;
 import peersModel.interfaces.IPeer;
-import persistence.interfaces.IPersister;
+import peersModel.interfaces.IPeerAdress;
 
-public class NetworkToFilePersister implements IPersister
+
+public class NetworkToFilePersister
 {
+	
+	public static boolean DoPersistNetwork(ApplicationModelSettings input, String targetPath) {
 
-	@Override
-	public boolean DoPersistNetwork(ApplicationModelSettings input, String targetPath) {
-
-		return false;
+		PersistenceContainer container = ToPersistenceContainer(input);
+		
+		return WriteObject(container,targetPath);
 	}
-
-	@Override
+	
 	public ApplicationModelSettings DoRestoreNetwork(String filePath) {
 
 		return null;
+	}
+	
+
+	private static boolean WriteObject(Object obj,String targetPath)
+	{
+		  try
+	      {
+	         FileOutputStream fileOut = new FileOutputStream(targetPath);
+	         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+	         out.writeObject(obj);
+	         out.close();
+	         fileOut.close();
+	         
+	         return true;
+	         
+	      }catch(IOException i)
+	      {
+	          i.printStackTrace();	          
+	          return false;
+	      }		  		 
 	}
 	
 	
@@ -54,10 +75,56 @@ public class NetworkToFilePersister implements IPersister
 	}
 	
 	public static ArrayList<PeerEntry> ToPersistenceFormatPeers( ArrayList<IPeer> peers)
+	{				
+		List<PeerEntry> allNeigboursIds =peers.stream().map(o -> ToPersistenceFormatPeers(o)).collect(Collectors.toList());			
+		return  new ArrayList<PeerEntry>(allNeigboursIds);				
+	}
+	
+	
+	private static PeerEntry ToPersistenceFormatPeers( IPeer peer)
 	{
-		ArrayList<PeerEntry>  result = new ArrayList<PeerEntry>();
+		PeerEntry result = new  PeerEntry();
 		
-		return result;
+		result.PeerId = peer.GetPeerID();
+		result.Address = ToPersistenceEntry(peer.GetNetworkAdress());
+		
+		return result;				
+	}
+	
+	private static AddressBase ToPersistenceEntry(IPeerAdress address)
+	{
+		if(address instanceof GridAddress )
+		{
+			GridPersistenceAddress result = new GridPersistenceAddress();
+			result.XPos = ((GridAddress)address).GetPositionX();
+			result.YPos = ((GridAddress)address).GetPositionY();
+			result.Addresstype = 1;
+			return result;
+		} 
+				
+		if(address instanceof BaPreferentialAttachmentAddress )
+		{
+			PreferentialAttachmentPersistenceAddress result = new PreferentialAttachmentPersistenceAddress();
+			
+			result.Addresstype = 3;
+			result.XPos = ((BaPreferentialAttachmentAddress)address).GetPositionX();
+			result.YPos =  ((BaPreferentialAttachmentAddress)address).GetPositionY();
+			result.BirthPosition =  ((BaPreferentialAttachmentAddress)address).GetBirthPosition();
+			return result;
+		}
+		
+		if(address instanceof SmallWorldAddress )
+		{
+			SmallWorldPersistenceAddress result = new SmallWorldPersistenceAddress();	
+			
+			result.Addresstype = 2;
+			result.XPos = ((SmallWorldAddress)address).GetPositionX();
+			result.YPos =  ((SmallWorldAddress)address).GetPositionY();
+			return result;
+		}
+		
+		return null;
+		
 	}
 	
 	public static Map<Long, ArrayList<Long>> ToPersistenceFormat(INetworkFacade facade)
@@ -85,8 +152,7 @@ public class NetworkToFilePersister implements IPersister
 		if(address instanceof NetworkSettingsSmallWorldKleinberg)
 		{
 			return 2;			
-		}
-		
+		}		
 		if(address instanceof NetworkSettingsGrid)
 		{
 			return 1;					
@@ -95,12 +161,9 @@ public class NetworkToFilePersister implements IPersister
 	}
 	
 	public static ArrayList<NetworkSettingsPersistenceBase>  ToPersistenceFormat(ArrayList<NetworkSettingsBase> input)
-	{
-		 
-		ArrayList<NetworkSettingsPersistenceBase> result ;		
+	{		 			
 		List<NetworkSettingsPersistenceBase> allAddresses = input.stream().map(o -> ToPersistenceFormat(o)).collect(Collectors.toList());		 
-		result = new ArrayList<NetworkSettingsPersistenceBase>(allAddresses);
-		
+		ArrayList<NetworkSettingsPersistenceBase> result = new ArrayList<NetworkSettingsPersistenceBase>(allAddresses);		
 		return result;
 	}
 	
@@ -108,17 +171,33 @@ public class NetworkToFilePersister implements IPersister
 	{
 		if(input instanceof NetworkSettingsBaPreferentialAttachment)
 		{
-			return new NetworkSettingsPersistencePreferentialAttachment(){  };			
+			NetworkSettingsPersistencePreferentialAttachment  settings =  new NetworkSettingsPersistencePreferentialAttachment();
+			
+			settings.m = ((NetworkSettingsBaPreferentialAttachment)input).m;
+			settings.m0 = ((NetworkSettingsBaPreferentialAttachment)input).m0;
+			settings.N = ((NetworkSettingsBaPreferentialAttachment)input).N;
+			
+			return settings;
 		}
 		
 		if(input instanceof NetworkSettingsSmallWorldKleinberg)
-		{
-			return new NetworkSettingsPersistenceSmallWorldKleinberg();			
+		{						
+			NetworkSettingsPersistenceSmallWorldKleinberg  settings =  new NetworkSettingsPersistenceSmallWorldKleinberg();			
+			settings._pPParameter = ((NetworkSettingsSmallWorldKleinberg)input)._pPParameter;
+			settings._qParameter = ((NetworkSettingsSmallWorldKleinberg)input)._qParameter;
+			settings._rParameter = ((NetworkSettingsSmallWorldKleinberg)input)._rParameter;
+			settings._xLength = ((NetworkSettingsSmallWorldKleinberg)input)._xLength;
+			settings._yLength = ((NetworkSettingsSmallWorldKleinberg)input)._yLength;
+			
+			return settings;
 		}
 		
 		if(input instanceof NetworkSettingsGrid)
 		{
-			return new NetworkSettingsPersistenceGrid();					
+			NetworkSettingsPersistenceGrid settings =  new NetworkSettingsPersistenceGrid();				
+			settings.XLength = ((NetworkSettingsGrid)input).XLength;
+			settings.YLength = ((NetworkSettingsGrid)input).YLength;
+			return settings;
 		}	
 		
 		return null;
@@ -172,27 +251,7 @@ public class NetworkToFilePersister implements IPersister
 		return DeserializeFromContainer(container, facade);	
 	}
 
-	
-	private boolean WriteObject(Object obj)
-	{
-		  try
-	      {
-	         FileOutputStream fileOut = new FileOutputStream(_fullPathToFile);
-	         ObjectOutputStream out = new ObjectOutputStream(fileOut);
-	         out.writeObject(obj);
-	         out.close();
-	         fileOut.close();
-	         
-	         return true;
-	         
-	      }catch(IOException i)
-	      {
-	          i.printStackTrace();	          
-	          return false;
-	      }		  		 
-	}
-	
-	
+			
 	private boolean DeserializeFromContainer(PersistenceContainer container, INetworkFacade target)
 	{		
 		ArrayList<IPeer> createdPeers = new  ArrayList<IPeer>();
@@ -251,53 +310,7 @@ public class NetworkToFilePersister implements IPersister
 		return true;
 	}
 	
-	private PersistenceContainer SerializeToContainer(INetworkFacade facade,NetworkSettingsBase settings)
-	{
-		PersistenceContainer result = new PersistenceContainer();
-		
-		result.DimensionsNetwork = facade.GetDimenstions();
-		
-		for(IPeer peer : facade.GetPeers())
-		{
-			PeerEntry entry = new PeerEntry();
-			
-			SmallWorldAddress inputAddr = (SmallWorldAddress)peer.GetNetworkAdress();
-			
-			entry.PeerId =peer.GetPeerID();
-			entry.Address = new SmallWorldPersistenceAddress(inputAddr.GetPositionX(), inputAddr.GetPositionY());
-			
-			
-			result.peerList.add(entry);
-			
-			
-			if(!result.ListPeerConnections.containsKey(entry.PeerId))
-			{
-				result.ListPeerConnections.put(entry.PeerId, new ArrayList<Long>());
-			}
-								
-			for(IPeer contact : peer.GetAllNeighbours())
-			{
-				result.ListPeerConnections.get(entry.PeerId).add(contact.GetPeerID());
-			}
-								
-		}
-		
-		if(settings instanceof NetworkSettingsSmallWorldKleinberg)
-		{
-			NetworkSettingsSmallWorldKleinberg kleinbergSettings = (NetworkSettingsSmallWorldKleinberg) settings;
-			
-			NetworkSettingsPersistenceSmallWorldKleinberg persistenceSettings = new  NetworkSettingsPersistenceSmallWorldKleinberg();
-			
-			persistenceSettings._pPParameter = kleinbergSettings._pPParameter;
-			persistenceSettings._rParameter = kleinbergSettings._rParameter;			
-			persistenceSettings._qParameter = kleinbergSettings._qParameter;
-			persistenceSettings._xLength = kleinbergSettings._xLength;
-			persistenceSettings._yLength = kleinbergSettings._yLength;			
-			result.NetworkSpecialSettings = persistenceSettings;
-		}
-		
-		return result;
-	}
+
 	*/
 	
 }

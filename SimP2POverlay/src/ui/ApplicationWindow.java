@@ -222,6 +222,8 @@ public class ApplicationWindow {
 		mntmSmallworldSettings.addActionListener(_actionListenerButtons);
 		mntmPreferentialattachmentSettings.addActionListener(_actionListenerButtons);
 		comboBox.addActionListener(_actionListenerButtons);
+		mntmNewMenuItemSaveAs.addActionListener(_actionListenerButtons);
+		mntmNewMenuItemOpen.addActionListener(_actionListenerButtons);
 								
 		InitializeCustom(glCanvas);									
 	}
@@ -371,7 +373,10 @@ public class ApplicationWindow {
 	private void DoSaveAs()
 	{
 						
-		String  filePath = DoSelectFile(false);			
+		String  filePath = DoSelectFile(false);		
+		
+		if(!filePath.endsWith(".network") ) filePath = filePath + ".network";
+		
 		if(_actionsHandler.UserStoresTheSettings(filePath) == false)
 		{
 			JOptionPane.showMessageDialog(null, "Any generated network found.\nPlease generate the network first!", "Saving failed", JOptionPane.ERROR_MESSAGE);

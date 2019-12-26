@@ -139,13 +139,7 @@ public class AppWindowActions
 	
 	public boolean UserStoresTheSettings(String targetPath)
 	{
-		//NetworkToFilePersister persister = new  NetworkToFilePersister();
-		
-		//persister.InitializeTargetFile(filePath);
-		
-		//persister.DoPersistNetwork(_networkViewModel.GetNetwork(), _settingsKleinberg);
-
-		return false;
+		return NetworkToFilePersister.DoPersistNetwork(ApplicationSettings, targetPath);				
 	}
 	
 	public boolean UserOpensSettingsFromFile(String sourcePath)
