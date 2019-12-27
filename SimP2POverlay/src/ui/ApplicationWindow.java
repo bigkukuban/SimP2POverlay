@@ -50,6 +50,7 @@ public class ApplicationWindow {
 	JSlider _cameraSliderYPos;
 	JSlider _cameraSliderXPos;
 	JSlider _cameraSliderZPos;
+	JComboBox<Item> _selectedTopologyComboBox;
 	JTextPane textPaneLongRangeContacts;
      
 	private static class Item {
@@ -208,24 +209,42 @@ public class ApplicationWindow {
 		frame.getContentPane().add(topologyPanel);
 		topologyPanel.setLayout(null);
 		
-		JComboBox<Item> comboBox = new JComboBox<Item>();
+		_selectedTopologyComboBox = new JComboBox<Item>();
 		Item[]  supportedItems = Item.GetSupportedTopologies();
-		comboBox.setModel(new DefaultComboBoxModel<Item>(supportedItems));
-		comboBox.setBounds(10, 21, 185, 20);
-		comboBox.setPreferredSize(new Dimension(120, 20));
-		comboBox.setActionCommand("letChangeTopology");				
-		comboBox.setSelectedItem(Item.GetItemByEnum(ApplicationModelSettings.ConvertTypeToEnum(_actionsHandler.ApplicationSettings.ActiveSettings),supportedItems));		
+		_selectedTopologyComboBox.setModel(new DefaultComboBoxModel<Item>(supportedItems));
+		_selectedTopologyComboBox.setBounds(10, 21, 185, 20);
+		_selectedTopologyComboBox.setPreferredSize(new Dimension(120, 20));
+		_selectedTopologyComboBox.setActionCommand("letChangeTopology");				
+		_selectedTopologyComboBox.setSelectedItem(Item.GetItemByEnum(ApplicationModelSettings.ConvertTypeToEnum(_actionsHandler.ApplicationSettings.ActiveSettings),supportedItems));		
 		
-		topologyPanel.add(comboBox);
+		topologyPanel.add(_selectedTopologyComboBox);
 						
 		mntmMenuItemGridSettings.addActionListener(_actionListenerButtons);
 		mntmSmallworldSettings.addActionListener(_actionListenerButtons);
 		mntmPreferentialattachmentSettings.addActionListener(_actionListenerButtons);
-		comboBox.addActionListener(_actionListenerButtons);
+		_selectedTopologyComboBox.addActionListener(_actionListenerButtons);
 		mntmNewMenuItemSaveAs.addActionListener(_actionListenerButtons);
 		mntmNewMenuItemOpen.addActionListener(_actionListenerButtons);
 								
 		InitializeCustom(glCanvas);									
+	}
+	
+	private  Object GetItemToBeSelectedInComboBox()
+	{
+		Object result = null;
+		for(int i=0; i< _selectedTopologyComboBox.getItemCount(); i++)
+		{
+			
+			Item obj = (Item)_selectedTopologyComboBox.getItemAt(i);
+			
+			SupportedTopologyTypes typ = ApplicationModelSettings.ConvertTypeToEnum(_actionsHandler.ApplicationSettings.ActiveSettings);
+			
+			if(obj.type == typ)
+			{
+				result = obj;
+			}
+		}
+		return result;
 	}
 	
 	private static Dimension CalculateNewSizeForOpenGlCanvas(Component cmp)
@@ -389,16 +408,19 @@ public class ApplicationWindow {
 	}
 	
 	private void DoOpenFile()
-	{
-	
-		String  filePath = DoSelectFile(true);				
-		
+	{	
+		String  filePath = DoSelectFile(true);						
 		if(_actionsHandler.UserOpensSettingsFromFile(filePath) == false)
 		{
 			JOptionPane.showMessageDialog(null, "Open failed of the settings... !", "Open failed", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		frame.setTitle(filePath);
+		//update selected item 		
+		Object objToSelect =  GetItemToBeSelectedInComboBox();
+		_skipFireingEvents = true;
+		_selectedTopologyComboBox.setSelectedItem(objToSelect);
+		_skipFireingEvents = false;
 	}
 
 	private void DoConfigurePreferentialAttachmentSettings()
@@ -455,11 +477,12 @@ public class ApplicationWindow {
 	{
 		_actionsHandler.UserChangedToOtherTopology(topologyType);
 	}
-	
+	boolean _skipFireingEvents = false;
 	ActionListener _actionListenerButtons  = new ActionListener() 
 	{
 		public void actionPerformed(ActionEvent arg0) 
-		{											
+		{			
+			if(_skipFireingEvents) return;
 			
 			if(arg0.getActionCommand() == "FileOpen")
 			{

@@ -144,27 +144,13 @@ public class AppWindowActions
 	
 	public boolean UserOpensSettingsFromFile(String sourcePath)
 	{
-		/*
-		 * NetworkToFilePersister persister = new  NetworkToFilePersister();
-						
-		persister.InitializeTargetFile(filePath);
+		ApplicationModelSettings  newSettings = NetworkToFilePersister.DoRestoreNetwork(sourcePath);
+		if(newSettings == null) return false;
 		
-		INetworkFacade network = new NetworkFacade();		
-		if(!persister.DoRestoreNetwork(network))
-		{
-			return;
-		}			
-		_settingsKleinberg = (NetworkSettingsSmallWorldKleinberg)persister.GetLastRestoredNetworkSettings(); 
+		ApplicationSettings = newSettings;
+		_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));
+		_openGlView.UpdateCanvas();
 				
-		_networkViewModel.SetNetwork(network);
-		
-		UpdateUISettings();		
-		
-		frame.setTitle(filePath);
-		
-		UpdateCanvas();
-		 */
-		
-		return false;
+		return true;
 	}
 }
