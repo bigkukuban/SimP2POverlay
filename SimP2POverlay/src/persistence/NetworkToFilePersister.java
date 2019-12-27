@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.math3.util.Pair;
 import launcher.ApplicationModelSettings;
 import networkInitializer.NetworkSettingsBase;
 import networkInitializer.baPreferentialAttachment.BaPreferentialAttachmentAddress;
@@ -48,23 +49,67 @@ public class NetworkToFilePersister
 	{
 		ApplicationModelSettings appLocalSettings = new ApplicationModelSettings();
 		
-		appLocalSettings.NetworkFacade = ToLocalModel(persistenceData.ListPeerConnections, persistenceData.peerList,persistenceData.DimensionsNetwork);
-		appLocalSettings.AllGraphSettings = ToLocalModel(persistenceData.NetworkSpecialSettings);
-		appLocalSettings.ActiveSettings = ToLocalModel(persistenceData.CurrentActiveSettings, appLocalSettings.AllGraphSettings);
+		appLocalSettings.NetworkFacade = ToLocalModel(persistenceData.ListPeerConnections, persistenceData.peerList,persistenceData.DimensionsNetwork);		
+		Pair<ArrayList<NetworkSettingsBase>,NetworkSettingsBase> settings = ToLocalModel(persistenceData.CurrentActiveSettings, persistenceData.NetworkSpecialSettings);		
+		appLocalSettings.AllGraphSettings = settings.getFirst();
+		appLocalSettings.ActiveSettings = settings.getSecond();
 		
 		return appLocalSettings;
 				
 	}
 	
-	private static NetworkSettingsBase ToLocalModel(int currentActiveSettings,ArrayList<NetworkSettingsBase> allGraphSettings) {
-
-		return null;
-	}
-
-	private static ArrayList<NetworkSettingsBase> ToLocalModel(ArrayList<NetworkSettingsPersistenceBase> networkSpecialSettings) 
+	private static  Pair<ArrayList<NetworkSettingsBase>,NetworkSettingsBase> ToLocalModel(int currentActiveSettings,ArrayList<NetworkSettingsPersistenceBase> networkSpecialSettings) 
 	{
+		ArrayList<NetworkSettingsBase> allSettings = new ArrayList<NetworkSettingsBase>();
+		NetworkSettingsBase activeSetting = null;
 		
-		return null;
+		for(NetworkSettingsPersistenceBase input : networkSpecialSettings)
+		{
+			if(input instanceof NetworkSettingsPersistencePreferentialAttachment)
+			{
+				NetworkSettingsBaPreferentialAttachment  settings =  new NetworkSettingsBaPreferentialAttachment();
+				
+				settings.m = ((NetworkSettingsPersistencePreferentialAttachment)input).m;
+				settings.m0 = ((NetworkSettingsPersistencePreferentialAttachment)input).m0;
+				settings.N = ((NetworkSettingsPersistencePreferentialAttachment)input).N;
+				allSettings.add(settings);
+				
+				if(currentActiveSettings == 3)
+				{
+					activeSetting = settings;
+				}
+			}
+			
+			if(input instanceof NetworkSettingsPersistenceSmallWorldKleinberg)
+			{						
+				NetworkSettingsSmallWorldKleinberg  settings =  new NetworkSettingsSmallWorldKleinberg();			
+				settings._pPParameter = ((NetworkSettingsPersistenceSmallWorldKleinberg)input)._pPParameter;
+				settings._qParameter = ((NetworkSettingsPersistenceSmallWorldKleinberg)input)._qParameter;
+				settings._rParameter = ((NetworkSettingsPersistenceSmallWorldKleinberg)input)._rParameter;
+				settings._xLength = ((NetworkSettingsPersistenceSmallWorldKleinberg)input)._xLength;
+				settings._yLength = ((NetworkSettingsPersistenceSmallWorldKleinberg)input)._yLength;
+				allSettings.add(settings);
+				
+				if(currentActiveSettings == 2)
+				{
+					activeSetting = settings;	
+				}
+			}
+			
+			if(input instanceof NetworkSettingsPersistenceGrid)
+			{
+				NetworkSettingsGrid settings =  new NetworkSettingsGrid(((NetworkSettingsPersistenceGrid)input).XLength,((NetworkSettingsPersistenceGrid)input).YLength);								
+				allSettings.add(settings);
+				
+				if(currentActiveSettings == 1)
+				{
+					activeSetting = settings;
+				}
+			}	
+		}
+		
+		return new Pair<ArrayList<NetworkSettingsBase>,NetworkSettingsBase>(allSettings,activeSetting);
+			
 	}
 
 	private static INetworkFacade ToLocalModel(Map<Long, ArrayList<Long>> listPeerConnections,ArrayList<PeerEntry> peerList, int[] dimensionsNetwork) 
@@ -308,115 +353,5 @@ public class NetworkToFilePersister
 		
 		return null;
 	}
-	
-/*
-	String _fullPathToFile = "";
-	private NetworkSettingsBase _lastCreatedNetworkSettings;
-	
-	public void InitializeTargetFile(String fullPathToFile)
-	{
-		_fullPathToFile = fullPathToFile;	
-	}
-	
-	@Override
-	public NetworkSettingsBase GetLastRestoredNetworkSettings()
-	{
-		return _lastCreatedNetworkSettings;
-	}
-	
-	@Override
-	public boolean DoPersistNetwork(INetworkFacade facade, NetworkSettingsBase settings) 
-	{		
-		PersistenceContainer container =  SerializeToContainer(facade,settings);		
-		return WriteObject(container);
-	}
-
-	@Override
-	public boolean DoRestoreNetwork(INetworkFacade facade) 
-	{
-		_lastCreatedNetworkSettings = null;
-		PersistenceContainer container = null;
-		  try
-	      {
-	         FileInputStream fileIn = new FileInputStream(_fullPathToFile);
-	         ObjectInputStream in = new ObjectInputStream(fileIn);
-	         container = (PersistenceContainer) in.readObject();
-	         in.close();
-	         fileIn.close();
-	      }catch(IOException i)
-	      {
-	         i.printStackTrace();
-	         return false;
-	      }catch(ClassNotFoundException c)
-	      {
-	         System.out.println("Class not found");
-	         c.printStackTrace();
-	         return false;
-	      }
-			
-		return DeserializeFromContainer(container, facade);	
-	}
-
-			
-	private boolean DeserializeFromContainer(PersistenceContainer container, INetworkFacade target)
-	{		
-		ArrayList<IPeer> createdPeers = new  ArrayList<IPeer>();
-		for(PeerEntry peer : container.peerList)
-		{
-			Peer created = new Peer();
-			created.SetPeerID(peer.PeerId);
-									
-			SmallWorldAddress addressPeer = new  SmallWorldAddress(((SmallWorldPersistenceAddress)peer.Address).XPos,
-																	((SmallWorldPersistenceAddress)peer.Address).YPos);
-			
-			created.SetNetworkAdress(addressPeer);
-			createdPeers.add(created);			
-		}		
-		target.SetPeers(createdPeers, container.DimensionsNetwork);
 		
-		for (Entry<Long, ArrayList<Long>> entry : container.ListPeerConnections.entrySet()) {
-		    Long idPeer = entry.getKey();
-		    ArrayList<Long> contacts = entry.getValue();
-		    IPeer peerSource = target.GetPeerById(idPeer);
-		    
-		    for(Long taregetId : contacts)
-		    {
-		    	IPeer peerTarget = target.GetPeerById(taregetId);
-		    	peerSource.AddNeighbour(peerTarget);
-		    }
-		}
-		
-		for (Entry<Long, ArrayList<Long>> entry : container.ListPeerConnections.entrySet()) {
-		    Long idPeer = entry.getKey();
-		    ArrayList<Long> contacts = entry.getValue();
-		    IPeer peerSource = target.GetPeerById(idPeer);
-		    
-		    for(Long taregetId : contacts)
-		    {
-		    	IPeer peerTarget = target.GetPeerById(taregetId);
-		    	peerSource.AddNeighbour(peerTarget);
-		    }
-		}
-		
-		if(container.NetworkSpecialSettings != null)
-		{
-			if(container.NetworkSpecialSettings instanceof NetworkSettingsPersistenceSmallWorldKleinberg)
-			{
-				_lastCreatedNetworkSettings = new NetworkSettingsSmallWorldKleinberg();								
-				NetworkSettingsPersistenceSmallWorldKleinberg kleinbergSettings = (NetworkSettingsPersistenceSmallWorldKleinberg) container.NetworkSpecialSettings;
-											
-				((NetworkSettingsSmallWorldKleinberg)_lastCreatedNetworkSettings)._pPParameter = kleinbergSettings._pPParameter;
-				((NetworkSettingsSmallWorldKleinberg)_lastCreatedNetworkSettings)._rParameter = kleinbergSettings._rParameter;			
-				((NetworkSettingsSmallWorldKleinberg)_lastCreatedNetworkSettings)._qParameter = kleinbergSettings._qParameter;
-				((NetworkSettingsSmallWorldKleinberg)_lastCreatedNetworkSettings)._xLength = kleinbergSettings._xLength;
-				((NetworkSettingsSmallWorldKleinberg)_lastCreatedNetworkSettings)._yLength = kleinbergSettings._yLength;				 				
-			}
-		}
-		
-		return true;
-	}
-	
-
-	*/
-	
 }
