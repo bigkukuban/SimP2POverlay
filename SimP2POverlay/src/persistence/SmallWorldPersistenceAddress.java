@@ -1,6 +1,6 @@
 package persistence;
 
-public class SmallWorldPersistenceAddress extends AddressBase  implements java.io.Serializable  {
+public class SmallWorldPersistenceAddress extends PersistenceAddressBase  implements java.io.Serializable  {
 	
 	/**
 	 * 

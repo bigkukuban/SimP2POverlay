@@ -1,6 +1,6 @@
 package persistence;
 
-public class GridPersistenceAddress extends AddressBase  implements java.io.Serializable  {
+public class GridPersistenceAddress extends PersistenceAddressBase  implements java.io.Serializable  {
 	
 	/**
 	 * 

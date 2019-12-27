@@ -1,6 +1,6 @@
 package persistence;
 
-public class PreferentialAttachmentPersistenceAddress extends AddressBase  implements java.io.Serializable  {
+public class PreferentialAttachmentPersistenceAddress extends PersistenceAddressBase  implements java.io.Serializable  {
 	
 	/**
 	 * 

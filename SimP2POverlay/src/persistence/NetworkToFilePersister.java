@@ -1,5 +1,4 @@
 package persistence;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,10 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
 import launcher.ApplicationModelSettings;
-import launcher.ApplicationModelSettings.SupportedTopologyTypes;
 import networkInitializer.NetworkSettingsBase;
 import networkInitializer.baPreferentialAttachment.BaPreferentialAttachmentAddress;
 import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
@@ -20,6 +18,8 @@ import networkInitializer.gridStructured.GridAddress;
 import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
 import networkInitializer.smallWorldKleinberg.SmallWorldAddress;
+import peersModel.implementation.NetworkFacade;
+import peersModel.implementation.Peer;
 import peersModel.interfaces.INetworkFacade;
 import peersModel.interfaces.IPeer;
 import peersModel.interfaces.IPeerAdress;
@@ -28,18 +28,97 @@ import peersModel.interfaces.IPeerAdress;
 public class NetworkToFilePersister
 {
 	
-	public static boolean DoPersistNetwork(ApplicationModelSettings input, String targetPath) {
-
-		PersistenceContainer container = ToPersistenceContainer(input);
-		
+	public static boolean DoPersistNetwork(ApplicationModelSettings input, String targetPath) 
+	{
+		PersistenceContainer container = ToPersistenceContainer(input);		
 		return WriteObject(container,targetPath);
 	}
 	
-	public ApplicationModelSettings DoRestoreNetwork(String filePath) {
+	public static ApplicationModelSettings DoRestoreNetwork(String filePath) {
+
+		PersistenceContainer readObject = ReadObject(filePath);
+		
+		if(readObject == null) return null;
+					
+		return ToLocalModel(readObject);
+	}
+	
+	
+	public static ApplicationModelSettings ToLocalModel(PersistenceContainer persistenceData)
+	{
+		ApplicationModelSettings appLocalSettings = new ApplicationModelSettings();
+		
+		appLocalSettings.NetworkFacade = ToLocalModel(persistenceData.ListPeerConnections, persistenceData.peerList,persistenceData.DimensionsNetwork);
+		appLocalSettings.AllGraphSettings = ToLocalModel(persistenceData.NetworkSpecialSettings);
+		appLocalSettings.ActiveSettings = ToLocalModel(persistenceData.CurrentActiveSettings, appLocalSettings.AllGraphSettings);
+		
+		return appLocalSettings;
+				
+	}
+	
+	private static NetworkSettingsBase ToLocalModel(int currentActiveSettings,ArrayList<NetworkSettingsBase> allGraphSettings) {
 
 		return null;
 	}
+
+	private static ArrayList<NetworkSettingsBase> ToLocalModel(ArrayList<NetworkSettingsPersistenceBase> networkSpecialSettings) 
+	{
+		
+		return null;
+	}
+
+	private static INetworkFacade ToLocalModel(Map<Long, ArrayList<Long>> listPeerConnections,ArrayList<PeerEntry> peerList, int[] dimensionsNetwork) 
+	{
+		NetworkFacade  networkFacade = new NetworkFacade();		
+		List<IPeer> resultingPeers = peerList.stream().map(o -> ToLocalModel(o)).collect(Collectors.toList());		
+		//connect peers 
+		for(IPeer pr : resultingPeers)
+		{
+			ArrayList<Long> peerConns = listPeerConnections.get(pr.GetPeerID());
+			for(Long singleConn : peerConns)
+			{
+				Optional<IPeer> otherPeer =  resultingPeers.stream().filter(o -> o.GetPeerID() == singleConn).findAny();				
+				if(!otherPeer.isPresent()) continue;				
+				pr.AddNeighbour(otherPeer.get());
+			}
+		}
+		//assign..
+		networkFacade.SetPeers(new ArrayList<IPeer>(resultingPeers), dimensionsNetwork);
+
+		return networkFacade;
+	}
+
 	
+	private static IPeer ToLocalModel(PeerEntry peer)
+	{
+		Peer result = new Peer();		
+		result.SetPeerID(peer.PeerId);		
+		result.SetNetworkAdress(ToModelEntry(peer.Address));	
+		
+		return result;
+	}
+	
+	private static PersistenceContainer ReadObject(String sourcePath)
+	{
+		
+		PersistenceContainer container = null;
+		  try
+	      {
+	         FileInputStream fileIn = new FileInputStream(sourcePath);
+	         ObjectInputStream in = new ObjectInputStream(fileIn);
+	         container = (PersistenceContainer) in.readObject();
+	         in.close();
+	         fileIn.close();	        
+	      }catch(IOException i)
+	      {
+	         i.printStackTrace();	         
+	      }catch(ClassNotFoundException c)
+	      {
+	         System.out.println("Class not found");
+	         c.printStackTrace();	         
+	      }			
+		  return container;
+	}
 
 	private static boolean WriteObject(Object obj,String targetPath)
 	{
@@ -49,8 +128,7 @@ public class NetworkToFilePersister
 	         ObjectOutputStream out = new ObjectOutputStream(fileOut);
 	         out.writeObject(obj);
 	         out.close();
-	         fileOut.close();
-	         
+	         fileOut.close();	         
 	         return true;
 	         
 	      }catch(IOException i)
@@ -91,7 +169,7 @@ public class NetworkToFilePersister
 		return result;				
 	}
 	
-	private static AddressBase ToPersistenceEntry(IPeerAdress address)
+	private static PersistenceAddressBase ToPersistenceEntry(IPeerAdress address)
 	{
 		if(address instanceof GridAddress )
 		{
@@ -120,6 +198,34 @@ public class NetworkToFilePersister
 			result.Addresstype = 2;
 			result.XPos = ((SmallWorldAddress)address).GetPositionX();
 			result.YPos =  ((SmallWorldAddress)address).GetPositionY();
+			return result;
+		}
+		
+		return null;
+		
+	}
+	
+	private static IPeerAdress ToModelEntry(PersistenceAddressBase address)
+	{
+		if(address instanceof GridPersistenceAddress )
+		{
+			GridAddress result = new GridAddress( ((GridPersistenceAddress)address).XPos,  ((GridPersistenceAddress)address).YPos);
+						
+			return result;
+		} 
+				
+		if(address instanceof PreferentialAttachmentPersistenceAddress )
+		{
+			BaPreferentialAttachmentAddress result = new BaPreferentialAttachmentAddress(((PreferentialAttachmentPersistenceAddress)address).XPos,
+																						((PreferentialAttachmentPersistenceAddress)address).YPos,
+																						((PreferentialAttachmentPersistenceAddress)address).BirthPosition);						
+			return result;
+		}
+		
+		if(address instanceof SmallWorldPersistenceAddress )
+		{
+			SmallWorldAddress result = new SmallWorldAddress(((SmallWorldPersistenceAddress)address).XPos,
+															  ((SmallWorldPersistenceAddress)address).YPos);				
 			return result;
 		}
 		

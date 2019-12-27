@@ -1,31 +1,42 @@
 package persistence._NetworkToFilePersister;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
+import launcher.ApplicationModelSettings;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
-import peersModel.implementation.NetworkFacade;
+import networkInitializer.smallWorldKleinberg.SmallWorldKleinbergInitializer;
+import peersModel.interfaces.INetworkFacade;
 import persistence.NetworkToFilePersister;
 
 public class DoRestoreNetwork {
 
 	
-	//@Test
+	@Test
 	public final void testRestoreNetwork() 
 	{		
 		
+		NetworkSettingsSmallWorldKleinberg settings = new NetworkSettingsSmallWorldKleinberg();
+		
+		settings._qParameter = 2;
+		settings._pPParameter = 1;
+		settings._rParameter = 2.0;
+		settings._xLength = 40;
+		settings._yLength = 40;
+				
+		SmallWorldKleinbergInitializer creator = new SmallWorldKleinbergInitializer(settings);		
+		INetworkFacade facade = creator.GetInitializedNetwork();
+		
+		ApplicationModelSettings appSettings = new ApplicationModelSettings();
+		
+		appSettings.AllGraphSettings.add(settings);
+		appSettings.ActiveSettings = settings;
+		appSettings.NetworkFacade = facade;
 							
-		NetworkFacade facade = new 	NetworkFacade();
 		
-		NetworkToFilePersister persister = new  NetworkToFilePersister();
-						
-		persister.InitializeTargetFile("H:\\output.network");		
-		boolean result = persister.DoRestoreNetwork(facade);
-		NetworkSettingsSmallWorldKleinberg kleinBergSettings = (NetworkSettingsSmallWorldKleinberg)persister.GetLastRestoredNetworkSettings(); 
-					
-		assertTrue(result);
 		
-		assertTrue("Available Size: "+facade.GetPeers().size(),facade.GetPeers().size() == 1600 );
-		assertTrue(kleinBergSettings._xLength == 40);
-		assertTrue(kleinBergSettings._yLength == 40);
+		NetworkToFilePersister.DoPersistNetwork(appSettings, "testtile");
+		
+		//now read the settings .. 
+		
+		
 	}
 	
 }
