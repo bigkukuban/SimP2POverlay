@@ -44,8 +44,7 @@ public class RandomSelecterDoubleTest {
 		entriesInList.add(new RandomEntry(0.9,"Value"+0.7));
 		entriesInList.add(new RandomEntry(2,"Value"+10));		
 				
-		RandomSelecterDouble s = new RandomSelecterDouble();		
-		boolean bResult = false;
+		RandomSelecterDouble s = new RandomSelecterDouble();				
 		s.AssignObjectlist(entriesInList);
 		int numberFindings = 0;		
 		for(int i = 0; i< 10000; i++)

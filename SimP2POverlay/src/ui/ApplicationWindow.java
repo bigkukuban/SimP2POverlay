@@ -40,7 +40,7 @@ import javax.swing.DefaultComboBoxModel;
 
 public class ApplicationWindow {
 
-	private JFrame frame;
+	public JFrame frame;
  	       
     AppWindowActions _actionsHandler;
 	
@@ -62,15 +62,7 @@ public class ApplicationWindow {
             this.type = tp;
             this.description = description;
         }
-
-        public SupportedTopologyTypes getType() {
-            return type;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
+     
         @Override
         public String toString() {
             return description;
@@ -115,8 +107,7 @@ public class ApplicationWindow {
 		
 			
 		_openGLpanel = new JPanel();
-		_openGLpanel.setBackground(Color.BLACK);
-		Dimension dim = CalculateNewSizeForOpenGlCanvas(frame);
+		_openGLpanel.setBackground(Color.BLACK);		
 		_openGLpanel.setBounds(10, 116, 938,  534);
 		_openGLpanel.setLayout(new BorderLayout(0, 0));
 		frame.getContentPane().add(_openGLpanel);
@@ -180,8 +171,7 @@ public class ApplicationWindow {
 		
 		JMenuItem mntmNewMenuItemOpen = new JMenuItem("Open");
 		mnNewMenu.add(mntmNewMenuItemOpen);
-		mntmNewMenuItemOpen.setActionCommand("FileOpen");
-		mntmNewMenuItemOpen.addActionListener(_actionListenerButtons);
+		mntmNewMenuItemOpen.setActionCommand("FileOpen");		
 		
 		JMenuItem mntmNewMenuItemSaveAs = new JMenuItem("Save As");
 		mnNewMenu.add(mntmNewMenuItemSaveAs);
@@ -297,19 +287,19 @@ public class ApplicationWindow {
 		{
 			
 		}		
-		UpdateUISettings();		
+			
 	}
 
 			
 	/**
 	 * Update settings back into UI-Items
 	 */
-	private void UpdateUISettings()
+	public void UpdateUISettings(float newCameraPositionX, float newCameraPositionY,float newCameraPositionZ, float ZoomAngle)
 	{
-		//	_cameraSliderXPos.setValue(CalculationHelper.RecalcPositionInUserValue(this._networkViewModel.GetCameraPosition().GetPosX()));
-		//	_cameraSliderYPos.setValue(CalculationHelper.RecalcPositionInUserValue(this._networkViewModel.GetCameraPosition().GetPosY()));
-		//	_cameraSliderZPos.setValue(CalculationHelper.RecalcHeighInUserValue(this._networkViewModel.GetCameraPosition().GetPosZ()));
-		//	_sliderZoomFactor.setValue( (int)this._networkViewModel.GetZoomAngle() );					
+			_cameraSliderXPos.setValue(CalculationHelper.RecalcPositionInUserValue(newCameraPositionX));
+			_cameraSliderYPos.setValue(CalculationHelper.RecalcPositionInUserValue(newCameraPositionY));
+			_cameraSliderZPos.setValue(CalculationHelper.RecalcHeighInUserValue(newCameraPositionZ));
+			_sliderZoomFactor.setValue( (int)ZoomAngle );					
 	}
 
 		
@@ -514,6 +504,7 @@ public class ApplicationWindow {
 			
 			if(arg0.getActionCommand() == "letChangeTopology")
 			{
+				@SuppressWarnings("unchecked")
 				JComboBox<Item> comboBox = (JComboBox<Item>) arg0.getSource();
                 Item item = (Item) comboBox.getSelectedItem();
                 DoSwitchToNewTopology(item.type);

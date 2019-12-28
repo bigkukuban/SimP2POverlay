@@ -2,9 +2,6 @@ package peersModel.interfaces;
 
 import java.util.ArrayList;
 
-import randomWalk.interfaces.IRandomWalker;
-
-
 public interface IPeer 
 {
 
@@ -17,11 +14,7 @@ public interface IPeer
 	
 	IPeerAdress GetNetworkAdress();
 	void SetNetworkAdress(IPeerAdress  newAdress);
-	
-	void ResetWalkerChanges();
-	void AcceptRandomWalker(IRandomWalker walker);						
-			
-	
+						
 	//called after all connection initializations are done 
 	void OnFinalizedInitialization();
 		

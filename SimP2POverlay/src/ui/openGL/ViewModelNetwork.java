@@ -3,19 +3,17 @@ package ui.openGL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
-
 import commonHelper.math.EuclideanPoint;
 import commonHelper.math.interfaces.IEuclideanPoint;
 import peersModel.interfaces.INetworkFacade;
 import peersModel.interfaces.IPeer;
 import peersModel.interfaces.IPeerAdress;
-import randomWalk.interfaces.IRandomWalkerHost;
+
 
 import ui.openGL.interfaces.IPoint3D;
 import ui.openGL.interfaces.IViewModelNetworkDelegate;
@@ -33,36 +31,22 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 	float _viewAngle = 60.0f;	
 		
 	private GLUT _glut = new GLUT();  // for drawing the teapot
-	
-	LookAtPointCalculator _lookAtCalculator;
-	
+	GLU _glu;		
 	IPoint3D _lookAtPoint = new Point3D();	
-	IPoint3D _cameraPosition = new Point3D();
-	
-	IEuclideanPoint _selectionPoint = new EuclideanPoint(new double[]{0,0,0});
-	
-	GlDisplayLists _displayLists = new GlDisplayLists(); 
-		
-	
+	IPoint3D _cameraPosition = new Point3D();	
+	IEuclideanPoint _selectionPoint = new EuclideanPoint(new double[]{0,0,0});	
+	GlDisplayLists _displayLists = new GlDisplayLists(); 			
 	
 	public ViewModelNetwork()
 	{		
-		Reset();		
-		_lookAtCalculator = new LookAtPointCalculator();				
+		Reset();				
 	}
 	
 	public void SetViewPortMouseClickPosition(int xPos, int yPos, boolean withLookAtPointUpdate)
-	{	
-		_lookAtCalculator.AssignNewMouseCoordinates(xPos, yPos);
-		
-		if(withLookAtPointUpdate )
-		{
-			_lookAtPoint = _lookAtCalculator.CalculateLookAtPointInXYPlane();	
-		}						
+	{								
+			_lookAtPoint = LookAtPointCalculator.CalculateLookAtPointInXYPlane(xPos, yPos, _gl2,_glu);								
 	}
-	
-	
-	
+			
 	/* (non-Javadoc)
 	 * @see ui.openGL.IViewmodelNetwork#SetContext(com.jogamp.opengl.GLAutoDrawable)
 	 */
@@ -70,11 +54,9 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 	public void SetContext(GLAutoDrawable drawable, GL2 gl2,GLU glu)
 	{
 		_drawable = drawable;
-		_displayLists.Initialize(drawable);
-		_lookAtCalculator.SetContext(drawable,gl2,glu);
+		_displayLists.Initialize(drawable);		
 		_gl2 = gl2;		
-	
-		
+		_glu = glu;		
 	}
 	 
 	Deque<IViewModelNetworkDelegate> _occuredEvents = new ArrayDeque<IViewModelNetworkDelegate>();
@@ -184,12 +166,12 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 				
 	}
 		
-	public IRandomWalkerHost GetLastSelectedPeer()
+	public IPeer GetLastSelectedPeer()
 	{
-		IPoint3D currentSelected = _lookAtCalculator.CalculateLookAtPointInXYPlane();
+		IPoint3D currentSelected = GetLookAtPosition();
 		IEuclideanPoint selectionPoint = new EuclideanPoint(new double[]{currentSelected.GetPosX(),currentSelected.GetPosY(),currentSelected.GetPosZ()});
 		
-		return (IRandomWalkerHost)GetSelectedPeer(selectionPoint);
+		return (IPeer)GetSelectedPeer(selectionPoint);
 	}
 	
 	private IPeer GetSelectedPeer(IEuclideanPoint selectedPoint)
@@ -220,10 +202,8 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 		for(IPeer peer: _myNetwork.GetPeers())
 		{								
 			float[] coords =  GetPeerCoordinates(peer);
-						
-			IRandomWalkerHost peerHost = (IRandomWalkerHost)peer;
-						
-			int color = peerHost.GetHostColor();
+															
+			int color = (int)peer.GetPeerID()*100+0xBBBBBB;
 			
 			gl.glLoadIdentity();	
 			gl.glTranslatef(coords[0], coords[1], 0.0f);
@@ -299,9 +279,7 @@ public class ViewModelNetwork implements IViewmodelNetwork {
 					gl.glVertex3d(pnt.GetPosX(),pnt.GetPosY(),pnt.GetPosZ());
 				}
 			gl.glEnd();
-		}				
-		
-		
+		}								
 	}
 	
 

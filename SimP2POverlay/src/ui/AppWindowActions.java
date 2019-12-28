@@ -13,6 +13,8 @@ import persistence.NetworkToFilePersister;
 import ui.openGL.ViewModelNetworkEvent.EventAssignNewNetwork;
 import ui.openGL.ViewModelNetworkEvent.EventChangeCameraPosition;
 import ui.openGL.ViewModelNetworkEvent.EventChangeZoomFactor;
+import ui.openGL.ViewModelNetworkEvent.EventSetLookAtMouseClick;
+import ui.openGL.interfaces.IPoint3D;
 
 public class AppWindowActions 
 {
@@ -48,12 +50,20 @@ public class AppWindowActions
 	}
 	
 	
-	OpenGLView _openGlView;
+	public OpenGLView _openGlView;
 	public ApplicationModelSettings ApplicationSettings = null;
-	public AppWindowActions(OpenGLView openGlView)
-	{
-		_openGlView = openGlView; 
+	public ApplicationWindow _applicationWindow;
+	public AppWindowActions()
+	{		
 		ApplicationSettings = CreateInitialModelSettings();
+	}
+	
+	public void UserChangedCameraPositionByMouseClick(int mouseXPosition, int mouseYPosition)
+	{
+		_openGlView._networkViewModel.PlaceNewEventDelegate(new EventSetLookAtMouseClick(mouseXPosition,mouseYPosition));				
+		_openGlView.UpdateCanvas();	
+		IPoint3D cameraPos = _openGlView._networkViewModel.GetCameraPosition();
+		_applicationWindow.UpdateUISettings(cameraPos.GetPosX(), cameraPos.GetPosY(), cameraPos.GetPosZ(), _openGlView._networkViewModel.GetZoomAngle());
 	}
 	
 	public void UserChangedZoomValue(int zoomValue)
@@ -66,6 +76,8 @@ public class AppWindowActions
 	{
 		_openGlView._networkViewModel.Reset();
 		_openGlView.UpdateCanvas();			
+		IPoint3D cameraPos = _openGlView._networkViewModel.GetCameraPosition();
+		_applicationWindow.UpdateUISettings(cameraPos.GetPosX(), cameraPos.GetPosY(), cameraPos.GetPosZ(), _openGlView._networkViewModel.GetZoomAngle());
 	}
 		
 	public void UserChangedCameraPosInApplilcationView(double dxPos, double dyPos, double dzPos)

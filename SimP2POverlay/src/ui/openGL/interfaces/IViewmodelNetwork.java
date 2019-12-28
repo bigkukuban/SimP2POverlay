@@ -5,7 +5,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 
 import peersModel.interfaces.INetworkFacade;
-import randomWalk.interfaces.IRandomWalkerHost;
+import peersModel.interfaces.IPeer;
 
 public interface IViewmodelNetwork {
 
@@ -68,5 +68,5 @@ public interface IViewmodelNetwork {
 	 * Returns the last by mouse click selected peer
 	 * @return
 	 */
-	IRandomWalkerHost GetLastSelectedPeer();
+	IPeer GetLastSelectedPeer();
 }

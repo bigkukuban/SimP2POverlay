@@ -3,14 +3,10 @@ package ui;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-
-import ui.inputVerifier.DoubleVerifier;
 import ui.inputVerifier.IntVerifier;
-
 import javax.swing.JButton;
 import java.awt.Dimension;
 

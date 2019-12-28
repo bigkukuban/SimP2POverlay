@@ -20,7 +20,7 @@ public class OpenGlPrimitives {
 	 */
 	public static ArrayList<Point3D> calculateConnector(float x1, float y1, float x2, float y2, float  heigh)
 	{
-		float stepLength = 0.01f;
+		float stepLength = 0.0001f;
 		float zMaxHeigh = heigh;
 		
 		ArrayList<Point3D> resultingPointsOfLine = new ArrayList<Point3D>();

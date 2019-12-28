@@ -4,8 +4,6 @@ import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
-import ui.SettingsGridEditor;
-
 public class IntVerifier extends InputVerifier {
   
 

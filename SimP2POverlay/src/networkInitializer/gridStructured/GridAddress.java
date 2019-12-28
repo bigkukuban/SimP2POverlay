@@ -2,7 +2,6 @@ package networkInitializer.gridStructured;
 
 import commonHelper.math.EuclideanPoint;
 import commonHelper.math.interfaces.IEuclideanPoint;
-import networkInitializer.baPreferentialAttachment.BaPreferentialAttachmentAddress;
 import peersModel.interfaces.IPeerAdress;
 
 public class GridAddress implements IPeerAdress  {

@@ -1,4 +1,6 @@
 package persistence._NetworkToFilePersister;
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import launcher.ApplicationModelSettings;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
@@ -34,8 +36,10 @@ public class DoRestoreNetwork {
 		
 		NetworkToFilePersister.DoPersistNetwork(appSettings, "testtile");
 		
-		//now read the settings .. 
+
+		ApplicationModelSettings result = NetworkToFilePersister.DoRestoreNetwork("testtile");
 		
+		assertTrue(result.NetworkFacade.GetPeers().size() == 40*40);
 		
 	}
 	
