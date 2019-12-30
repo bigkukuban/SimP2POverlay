@@ -30,22 +30,7 @@ public class SmallWorldKleinbergInitializer implements INetworkInitializer
 		_pParameter = settings._pPParameter;
 		_rParameter = settings._rParameter;	
 	}	
-	
-	public SmallWorldKleinbergInitializer(int SizeX, int SizeY, int parameterQ, int parameterP, double parameterR )
-	{
-		_sizeX = SizeX;
-		_sizeY = SizeY;
-		_qParameter = parameterQ;
-		_pParameter = parameterP;
-		_rParameter = parameterR;		
-	}
-	
-	public SmallWorldKleinbergInitializer(int SizeX, int SizeY)
-	{
-		_sizeX = SizeX;
-		_sizeY = SizeY;		
-	}
-	
+		
 	@Override
 	public INetworkFacade GetInitializedNetwork() 
 	{

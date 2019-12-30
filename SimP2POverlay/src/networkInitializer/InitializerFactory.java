@@ -20,10 +20,7 @@ public class InitializerFactory {
 	 * @param withLogOutput
 	 * @return
 	 */
-	public static INetworkInitializer GetSmallWorldKleinbergInitializer(int SizeX, int SizeY, int parameterQ, int parameterP, double parameterR,boolean withLogOutput )
-	{
-		return (INetworkInitializer) new SmallWorldKleinbergInitializer(SizeX,SizeY, parameterQ,parameterP,parameterR);
-	}
+	
 	
 	
 	public static INetworkInitializer GetSmallWorldKleinbergInitializer(NetworkSettingsBase settings,boolean withLogOutput )
