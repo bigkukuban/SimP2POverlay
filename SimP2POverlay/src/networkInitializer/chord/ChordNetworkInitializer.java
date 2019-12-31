@@ -2,6 +2,7 @@ package networkInitializer.chord;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 import networkInitializer.interfaces.INetworkInitializer;
@@ -60,9 +61,70 @@ public class ChordNetworkInitializer implements INetworkInitializer
 			succeeds n by at least 2i-1 on the identifier circle, i.e., s = successor(n + 2i-1 ),
 			where 1 <= i <= m (and all arithmetic is modulo 2m ).
 		*/
-
-		
+	
+		for(IPeer pr : sortedPeers)
+		{
+			//calculate fingers and connect them to the other peers... s = successor(n + 2i-1 ),
+			ChordAddress address = (ChordAddress)pr.GetNetworkAdress();
+			List<finger> fingers = CalculateFingers(address._identifier,  identifierBitLength);
+			fingers =  CalculateEffectivePeerForFinger(sortedPeers,pr, address._identifier, fingers);
+			ConnectPeerToFingers( pr, fingers,sortedPeers);
+		}		
 		return listOfPeers;
+	}
+	
+	public static void ConnectPeerToFingers(IPeer pr,List<finger> fingers,  List<IPeer> sortedPeers)
+	{
+		for(finger fg: fingers)
+		{
+			//get peer
+			for(IPeer neighbour : sortedPeers)
+			{
+				ChordAddress address = (ChordAddress)neighbour.GetNetworkAdress();
+				
+				if(address._identifier ==fg.Identifier)
+				{
+					//now build a connection
+					pr.AddNeighbour(neighbour);
+				}
+			}
+		}
+	}
+
+	public static List<finger> CalculateFingers(long ownPeerIdentifier, long identifierBitLength)
+	{
+		ArrayList<finger> fingers = new ArrayList<finger>();
+		long maxAddressSpace = (long)Math.pow(2, identifierBitLength);
+		for(int i=0; i<=identifierBitLength; i++)
+		{
+			//calculate next finger
+			finger fg = new finger();
+			fg.i = i;
+			fg.Identifier = (ownPeerIdentifier + (long)Math.pow(2, i)) % maxAddressSpace;
+			fingers.add(fg);
+		}	
+		return fingers;
+	}
+	
+	public static List<finger> CalculateEffectivePeerForFinger(List<IPeer> sortedPeers,IPeer  ownPeer, long ownPeerIdentifier, List<finger> fingers)
+	{		
+		
+		for(finger fg: fingers)
+		{
+			//find peer after or equal fg.identifiert
+			for(IPeer pr : sortedPeers)
+			{
+				ChordAddress address = (ChordAddress)pr.GetNetworkAdress();
+				
+				if(address._identifier >=fg.Identifier)
+				{
+					fg.EffectiveIdentifier = address._identifier;
+					break;
+				}
+			}			
+		}
+		
+		return fingers;
 	}
 	
 	public static List<IPeer> SortPeersIncreasingByIdentifier(ArrayList<IPeer> listOfPeers) 
@@ -108,6 +170,7 @@ public class ChordNetworkInitializer implements INetworkInitializer
 			long identifier = GetNextRandomPeerIdentifier( alreadyUsedIdentifier, minIdentifierValue, maxIdentifierValue);
 			alreadyUsedIdentifier.add(identifier);
 			p.SetNetworkAdress( new ChordAddress(0,0,identifier));
+			result.add(p);
 		}
 		
 		return result;
