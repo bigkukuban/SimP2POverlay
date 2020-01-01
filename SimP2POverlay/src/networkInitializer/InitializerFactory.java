@@ -2,6 +2,8 @@ package networkInitializer;
 
 import networkInitializer.baPreferentialAttachment.BaPreferentialAttachmentInitializer;
 import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
+import networkInitializer.chord.ChordNetworkInitializer;
+import networkInitializer.chord.NetworkSettingsChord;
 import networkInitializer.gridStructured.GridStructuredInitializer;
 import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.interfaces.INetworkInitializer;
@@ -50,6 +52,12 @@ public class InitializerFactory {
 		if(settings instanceof NetworkSettingsGrid){
 			return   (INetworkInitializer) new GridStructuredInitializer((NetworkSettingsGrid)settings); 
 		}
+
+		
+		if(settings instanceof NetworkSettingsChord){
+			return   (INetworkInitializer) new ChordNetworkInitializer((NetworkSettingsChord)settings); 
+		}
+		
 		
 		return null;
 	}

@@ -10,10 +10,22 @@ public class Vector_XD extends EuclideanPoint implements IVector
 		super(components);
 	}
 	
+	//creates an 2 dimenstional vector with the given length
+	public static IVector TwoDimFromAngleAndLength(double phiXY, double length)
+	{		
+		double angleInradiants = phiXY/360.0*2 * Math.PI;
+		double xComp = length * Math.sin(angleInradiants);
+		double yComp = length * Math.cos(angleInradiants);
+	
+		return new Vector_XD(new double [] {xComp, yComp}); 
+	}
+	
 	public Vector_XD(IEuclideanPoint ep) 
 	{
 		super(ep.GetComponents());
 	}	
+	
+	
 	
 	@Override
 	public double GetLength() 
@@ -86,6 +98,8 @@ public class Vector_XD extends EuclideanPoint implements IVector
 		return new Vector_XD(_components);
 	}
 
+	
+	
 	@Override
 	public IVector MultiplicateWithScalar(double value) {
 		

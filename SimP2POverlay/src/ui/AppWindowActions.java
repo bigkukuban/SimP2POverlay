@@ -5,6 +5,7 @@ import launcher.ApplicationModelSettings.SupportedTopologyTypes;
 import networkInitializer.InitializerFactory;
 import networkInitializer.NetworkSettingsBase;
 import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
+import networkInitializer.chord.NetworkSettingsChord;
 import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.interfaces.INetworkInitializer;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
@@ -26,6 +27,7 @@ public class AppWindowActions
 		result.AllGraphSettings.add(new NetworkSettingsGrid(10,10));
 		result.AllGraphSettings.add(new NetworkSettingsSmallWorldKleinberg(10,10,1,1,1.0));	
 		result.AllGraphSettings.add(new NetworkSettingsBaPreferentialAttachment(2,2,100));
+		result.AllGraphSettings.add(new NetworkSettingsChord(5,10,true));
 		
 		result.ActiveSettings = result.AllGraphSettings.stream().
 									  filter(s -> s instanceof NetworkSettingsBaPreferentialAttachment).
@@ -143,7 +145,7 @@ public class AppWindowActions
 		NetworkSettingsBase settings = ApplicationSettings.GetSettingsByType(newTopology);
 		ApplicationSettings.ActiveSettings = settings;
 		
-		ApplicationSettings.NetworkFacade = CreateNetwork(ApplicationSettings.ActiveSettings);
+		ApplicationSettings.NetworkFacade = CreateNetwork(new NetworkSettingsChord(5,20,true));
 		_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));
 		_openGlView.UpdateCanvas();
 		

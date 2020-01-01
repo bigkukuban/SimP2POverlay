@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.Collectors;
 
+import org.apache.commons.math3.util.Pair;
+
+import commonHelper.math.Vector_XD;
+import commonHelper.math.interfaces.IVector;
 import networkInitializer.interfaces.INetworkInitializer;
 import peersModel.implementation.NetworkFacade;
 import peersModel.implementation.Peer;
@@ -47,10 +51,76 @@ public class ChordNetworkInitializer implements INetworkInitializer
 		}
 		
 		List<IPeer> connectedPeers = ConnectPeers(lstPeers, _settingsToUse._m );
+		int[] dimenstions = ArrangePeersIn2DSpace(connectedPeers,_settingsToUse._m);		
 		
-		NetworkFacade result = new NetworkFacade(lstPeers, new int[]{0,0});
+		NetworkFacade result = new NetworkFacade(lstPeers, dimenstions);
 		
 		return result;
+	}
+	
+	public static int[] ArrangePeersIn2DSpace(List<IPeer> listOfPeers, int identifierBitLength )
+	{
+		//peers are still sorted by their identifiert, thus we plate the first peer at the position 0 degree  in the circle.
+		double minStep = 360.0 / Math.pow(2, identifierBitLength);
+							
+		// get two peers with min identifiert distance
+		IPeer first = listOfPeers.get(0);
+		IPeer second = listOfPeers.get(listOfPeers.size()-1);
+		
+		IPeer prevPeer = second;		
+		for(IPeer pr: listOfPeers)
+		{		
+			if(GetIdentifiertDistance(pr, prevPeer) <  GetIdentifiertDistance(first, second)  )
+			{
+				first = prevPeer;
+				second = pr;
+			}				
+			prevPeer = pr;															 							
+		}
+		
+		if(first == second){
+			//there is only one peer in the list..
+		}
+		
+		//calculate vector between first and second
+		ChordAddress address1 = (ChordAddress)first.GetNetworkAdress();
+		ChordAddress address2 = (ChordAddress)second.GetNetworkAdress();
+		
+		double phi = address1._identifier * minStep;
+		double alpha = address2._identifier * minStep;
+		
+		IVector vecFirst = Vector_XD.TwoDimFromAngleAndLength(phi, 1);
+		IVector vecSec = Vector_XD.TwoDimFromAngleAndLength(alpha, 1);
+		
+		IVector diff = vecSec.SubstractVector(vecFirst);
+		
+		double FactorN = 2/ diff.GetLength();
+		
+		//now set 
+		for(IPeer pr: listOfPeers)
+		{		
+			ChordAddress address = (ChordAddress)first.GetNetworkAdress();
+			double gamma = address._identifier * minStep;
+			IVector vector = Vector_XD.TwoDimFromAngleAndLength(gamma, 2*FactorN);
+			
+			address._xPos = (int) ((int)vector.GetComponents()[0] + 2*FactorN);
+			address._yPos = (int) ((int)vector.GetComponents()[1] + 2*FactorN);
+			
+		}
+		return new int[]{(int) (2*FactorN),(int) (2*FactorN)};
+	}
+	
+	public static long GetIdentifiertDistance(IPeer pr1, IPeer pr2)
+	{
+		ChordAddress address1 = (ChordAddress)pr1.GetNetworkAdress();
+		ChordAddress address2 = (ChordAddress)pr2.GetNetworkAdress();
+		
+		return Math.abs(address1._identifier - address2._identifier);
+	}
+	
+	public static int[] GetNeededDimenstions(List<IPeer> listOfPeers )
+	{
+		return new int[]{0,0};
 	}
 	
 	public static List<IPeer> ConnectPeers(ArrayList<IPeer> listOfPeers, int identifierBitLength )
@@ -200,3 +270,4 @@ public class ChordNetworkInitializer implements INetworkInitializer
 	}
 
 }
+
