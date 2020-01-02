@@ -15,6 +15,8 @@ import launcher.ApplicationModelSettings;
 import networkInitializer.NetworkSettingsBase;
 import networkInitializer.baPreferentialAttachment.BaPreferentialAttachmentAddress;
 import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
+import networkInitializer.chord.ChordAddress;
+import networkInitializer.chord.NetworkSettingsChord;
 import networkInitializer.gridStructured.GridAddress;
 import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
@@ -65,6 +67,19 @@ public class NetworkToFilePersister
 		
 		for(NetworkSettingsPersistenceBase input : networkSpecialSettings)
 		{
+			if(input instanceof NetworkSettingsPersistenceChord)
+			{
+				NetworkSettingsChord settings =  new NetworkSettingsChord(((NetworkSettingsPersistenceChord)input).MParameter,
+																		((NetworkSettingsPersistenceChord)input).NParamter,
+																		((NetworkSettingsPersistenceChord)input).UseRandomPlacing);								
+				allSettings.add(settings);
+				
+				if(currentActiveSettings == 4)
+				{
+					activeSetting = settings;
+				}
+			}	
+			
 			if(input instanceof NetworkSettingsPersistencePreferentialAttachment)
 			{
 				NetworkSettingsBaPreferentialAttachment  settings =  new NetworkSettingsBaPreferentialAttachment();
@@ -105,7 +120,7 @@ public class NetworkToFilePersister
 				{
 					activeSetting = settings;
 				}
-			}	
+			}					
 		}
 		
 		return new Pair<ArrayList<NetworkSettingsBase>,NetworkSettingsBase>(allSettings,activeSetting);
@@ -246,6 +261,17 @@ public class NetworkToFilePersister
 			return result;
 		}
 		
+		if(address instanceof ChordAddress )
+		{
+			ChordPersistenceAddress result = new ChordPersistenceAddress();	
+			
+			result.Addresstype = 4;
+			result.XPos = ((ChordAddress)address).GetPositionX();
+			result.YPos =  ((ChordAddress)address).GetPositionY();
+			result.Identifier =  ((ChordAddress)address).GetIdentifier();
+			return result;
+		}
+		
 		return null;
 		
 	}
@@ -274,6 +300,14 @@ public class NetworkToFilePersister
 			return result;
 		}
 		
+		if(address instanceof ChordPersistenceAddress )
+		{
+			ChordAddress result = new ChordAddress(((ChordPersistenceAddress)address).XPos,
+												  ((ChordPersistenceAddress)address).YPos,
+												  ((ChordPersistenceAddress)address).Identifier );				
+			return result;
+		}
+		
 		return null;
 		
 	}
@@ -295,6 +329,11 @@ public class NetworkToFilePersister
 	
 	public static int ToPersistenceFormatType(NetworkSettingsBase address)
 	{
+		if(address instanceof NetworkSettingsChord)
+		{
+			return 4;			
+		}
+		
 		if(address instanceof NetworkSettingsBaPreferentialAttachment)
 		{
 			return 3;			
@@ -348,6 +387,15 @@ public class NetworkToFilePersister
 			NetworkSettingsPersistenceGrid settings =  new NetworkSettingsPersistenceGrid();				
 			settings.XLength = ((NetworkSettingsGrid)input).XLength;
 			settings.YLength = ((NetworkSettingsGrid)input).YLength;
+			return settings;
+		}
+		
+		if(input instanceof NetworkSettingsChord)
+		{
+			NetworkSettingsPersistenceChord settings =  new NetworkSettingsPersistenceChord();				
+			settings.MParameter = ((NetworkSettingsChord)input)._m;
+			settings.NParamter = ((NetworkSettingsChord)input)._N;
+			settings.UseRandomPlacing = ((NetworkSettingsChord)input)._UseRandomNodePlacingInRing;
 			return settings;
 		}	
 		

@@ -46,24 +46,7 @@ public class SortPeersByIdentifier {
 		
 	}
 	
-	@Test
-	public void ShouldGenerateNetwork() 
-	{
-		NetworkSettingsChord settings = new NetworkSettingsChord(12, 10, true);
-		ChordNetworkInitializer initializer;
-		try {
-			initializer = new ChordNetworkInitializer(settings);
-			INetworkFacade network = initializer.GetInitializedNetwork();
-			
-			assertTrue(network.GetPeers().size() == 10);
-			
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	;
-	}
+	
 	
 
 }

@@ -15,6 +15,7 @@ import com.jogamp.opengl.awt.GLCanvas;
 import launcher.ApplicationModelSettings;
 import launcher.ApplicationModelSettings.SupportedTopologyTypes;
 import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
+import networkInitializer.chord.NetworkSettingsChord;
 import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
 import ui.interfaces.IMouseClickDelegate;
@@ -73,7 +74,8 @@ public class ApplicationWindow {
         	 return new Item[] {
         			 			new Item(SupportedTopologyTypes.Grid, "Grid"),
         			 			new Item(SupportedTopologyTypes.PreferentialAttachment, "Preferential Attachment"),
-        			 			new Item(SupportedTopologyTypes.SmallWorld, "Small World")
+        			 			new Item(SupportedTopologyTypes.SmallWorld, "Small World"),
+        			 			new Item(SupportedTopologyTypes.Chord, "Chord")
         			 			};
         }
         
@@ -189,6 +191,10 @@ public class ApplicationWindow {
 		mntmSmallworldSettings.setActionCommand("letConfigureSmallWorldSettings");
 		mnNewMenuSettings.add(mntmSmallworldSettings);
 		
+		JMenuItem mntmChordSettings = new JMenuItem("Chord");
+		mntmChordSettings.setActionCommand("letConfigureChordSettings");
+		mnNewMenuSettings.add(mntmChordSettings);
+		
 		JMenuItem mntmPreferentialattachmentSettings = new JMenuItem("Preferential-Attachment");
 		mntmPreferentialattachmentSettings.setActionCommand("letConfigurePreferentialAttachmentSettings");
 		mnNewMenuSettings.add(mntmPreferentialattachmentSettings);
@@ -211,6 +217,7 @@ public class ApplicationWindow {
 						
 		mntmMenuItemGridSettings.addActionListener(_actionListenerButtons);
 		mntmSmallworldSettings.addActionListener(_actionListenerButtons);
+		mntmChordSettings.addActionListener(_actionListenerButtons);
 		mntmPreferentialattachmentSettings.addActionListener(_actionListenerButtons);
 		_selectedTopologyComboBox.addActionListener(_actionListenerButtons);
 		mntmNewMenuItemSaveAs.addActionListener(_actionListenerButtons);
@@ -447,6 +454,20 @@ public class ApplicationWindow {
 		_actionsHandler.UserChangedSettingsForSmallWorld(res.xItems,res.yItems,res.qParam,res.pParam, res.rParam);
 	}
 	
+	private void DoConfigureChordSettings()
+	{
+		NetworkSettingsChord settings = (NetworkSettingsChord)_actionsHandler.ApplicationSettings.GetSettingsByType(SupportedTopologyTypes.Chord);
+		
+		SettingsChordEditor chordSettingsFrame = new SettingsChordEditor(frame, settings._m, settings._N, settings._UseRandomNodePlacingInRing);
+		chordSettingsFrame.pack();
+		chordSettingsFrame.setLocationRelativeTo(frame);
+		chordSettingsFrame.setVisible(true);
+		
+		SettingsChordEditor.Result res = chordSettingsFrame.GetResult();
+		
+		_actionsHandler.UserChangedSettingsForChord(res.mValue, res.nValue, res.useRandomPlacing);
+	}
+	
 	private void DoConfigureGridSettings()
 	{
 		//send a broad cast				
@@ -497,6 +518,11 @@ public class ApplicationWindow {
 				DoConfigureSmallWorldSettings();
 			}
 			
+			if(arg0.getActionCommand() == "letConfigureChordSettings")
+			{
+				DoConfigureChordSettings();
+			}
+									
 			if(arg0.getActionCommand() == "letConfigurePreferentialAttachmentSettings")
 			{
 				DoConfigurePreferentialAttachmentSettings();

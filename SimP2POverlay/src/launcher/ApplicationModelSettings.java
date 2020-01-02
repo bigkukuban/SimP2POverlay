@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import networkInitializer.NetworkSettingsBase;
 import networkInitializer.baPreferentialAttachment.NetworkSettingsBaPreferentialAttachment;
+import networkInitializer.chord.NetworkSettingsChord;
 import networkInitializer.gridStructured.NetworkSettingsGrid;
 import networkInitializer.smallWorldKleinberg.NetworkSettingsSmallWorldKleinberg;
 import peersModel.interfaces.INetworkFacade;
@@ -12,7 +13,7 @@ public class ApplicationModelSettings
 {
 	public enum SupportedTopologyTypes
 	{
-		PreferentialAttachment, SmallWorld, Grid, Unknown
+		PreferentialAttachment, SmallWorld, Grid,Chord, Unknown
 	}
 	
 	public NetworkSettingsBase ActiveSettings = null;
@@ -37,6 +38,10 @@ public class ApplicationModelSettings
 		{
 			typeToSelect = NetworkSettingsGrid.class;
 		}
+		if(supType ==  SupportedTopologyTypes.Chord)
+		{
+			typeToSelect = NetworkSettingsChord.class;
+		}
 		
 		return typeToSelect;
 	}
@@ -56,6 +61,10 @@ public class ApplicationModelSettings
 		if(supType instanceof NetworkSettingsGrid)
 		{
 			return SupportedTopologyTypes.Grid;					
+		}
+		if(supType instanceof NetworkSettingsChord)
+		{
+			return SupportedTopologyTypes.Chord;					
 		}
 		
 		return SupportedTopologyTypes.Unknown;

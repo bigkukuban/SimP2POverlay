@@ -145,7 +145,7 @@ public class AppWindowActions
 		NetworkSettingsBase settings = ApplicationSettings.GetSettingsByType(newTopology);
 		ApplicationSettings.ActiveSettings = settings;
 		
-		ApplicationSettings.NetworkFacade = CreateNetwork(new NetworkSettingsChord(5,20,true));
+		ApplicationSettings.NetworkFacade = CreateNetwork(ApplicationSettings.ActiveSettings);
 		_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));
 		_openGlView.UpdateCanvas();
 		
@@ -166,5 +166,25 @@ public class AppWindowActions
 		_openGlView.UpdateCanvas();
 				
 		return true;
+	}
+
+	public void UserChangedSettingsForChord(int mValue, int nValue, boolean useRandomPlacing) 
+	{
+		NetworkSettingsChord settings = (NetworkSettingsChord)ApplicationSettings.GetSettingsByType(SupportedTopologyTypes.Chord);
+		
+		//some checks ... 		
+		if(Math.pow(2, mValue)< nValue) return;
+		
+		settings._m = mValue;
+		settings._N = nValue;
+		settings._UseRandomNodePlacingInRing = useRandomPlacing;
+		
+		if(ApplicationSettings.ActiveSettings == settings)
+		{
+			ApplicationSettings.NetworkFacade = CreateNetwork(settings);
+			_openGlView._networkViewModel.PlaceNewEventDelegate(new EventAssignNewNetwork(ApplicationSettings.NetworkFacade));	
+			_openGlView.UpdateCanvas();
+		}		
+		
 	}
 }

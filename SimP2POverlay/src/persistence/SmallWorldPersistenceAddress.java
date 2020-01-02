@@ -21,3 +21,5 @@ public class SmallWorldPersistenceAddress extends PersistenceAddressBase  implem
 	public int YPos = 0;
 	
 }
+
+

@@ -2,7 +2,6 @@ package networkInitializer.chord;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.util.Pair;
@@ -58,12 +57,8 @@ public class ChordNetworkInitializer implements INetworkInitializer
 		return result;
 	}
 	
-	public static int[] ArrangePeersIn2DSpace(List<IPeer> listOfPeers, int identifierBitLength )
+	public static Pair<IPeer, IPeer> GetNearestNeighboursInIdentifierSpace(List<IPeer> listOfPeers)
 	{
-		//peers are still sorted by their identifiert, thus we plate the first peer at the position 0 degree  in the circle.
-		double minStep = 360.0 / Math.pow(2, identifierBitLength);
-							
-		// get two peers with min identifiert distance
 		IPeer first = listOfPeers.get(0);
 		IPeer second = listOfPeers.get(listOfPeers.size()-1);
 		
@@ -78,13 +73,14 @@ public class ChordNetworkInitializer implements INetworkInitializer
 			prevPeer = pr;															 							
 		}
 		
-		if(first == second){
-			//there is only one peer in the list..
-		}
-		
+		return new Pair<IPeer, IPeer>(first,second);
+	}
+	
+	public static double CalculateSpreadingFactor(Pair<IPeer, IPeer> nearestNeighbours,double minStep)
+	{		
 		//calculate vector between first and second
-		ChordAddress address1 = (ChordAddress)first.GetNetworkAdress();
-		ChordAddress address2 = (ChordAddress)second.GetNetworkAdress();
+		ChordAddress address1 = (ChordAddress)nearestNeighbours.getFirst().GetNetworkAdress();
+		ChordAddress address2 = (ChordAddress)nearestNeighbours.getSecond().GetNetworkAdress();
 		
 		double phi = address1._identifier * minStep;
 		double alpha = address2._identifier * minStep;
@@ -94,17 +90,34 @@ public class ChordNetworkInitializer implements INetworkInitializer
 		
 		IVector diff = vecSec.SubstractVector(vecFirst);
 		
-		double FactorN = 2/ diff.GetLength();
+		if(diff.GetLength() > 1) return diff.GetLength();
 		
+		return 5/ diff.GetLength();
+	}
+	
+	public static int[] ArrangePeersIn2DSpace(List<IPeer> listOfPeers, int identifierBitLength )
+	{
+		//peers are still sorted by their identifiert, thus we plate the first peer at the position 0 degree  in the circle.
+		double minStep = 360.0 / Math.pow(2, identifierBitLength);
+							
+		// get two peers with min identifiert distance
+		Pair<IPeer, IPeer> nearestNeighbours = GetNearestNeighboursInIdentifierSpace(listOfPeers);
+		
+		if(nearestNeighbours.getFirst() == nearestNeighbours.getSecond()){
+			//there is only one peer in the list..
+			return new int[]{1,1};
+		}		
+		//calculate vector between first and second				
+		double FactorN =  CalculateSpreadingFactor(nearestNeighbours,minStep);	
 		//now set 
 		for(IPeer pr: listOfPeers)
 		{		
-			ChordAddress address = (ChordAddress)first.GetNetworkAdress();
+			ChordAddress address = (ChordAddress)pr.GetNetworkAdress();
 			double gamma = address._identifier * minStep;
-			IVector vector = Vector_XD.TwoDimFromAngleAndLength(gamma, 2*FactorN);
+			IVector vector = Vector_XD.TwoDimFromAngleAndLength(gamma, FactorN);
 			
-			address._xPos = (int) ((int)vector.GetComponents()[0] + 2*FactorN);
-			address._yPos = (int) ((int)vector.GetComponents()[1] + 2*FactorN);
+			address._xPos = (int) ((int)vector.GetComponents()[0] + FactorN);
+			address._yPos = (int) ((int)vector.GetComponents()[1] + FactorN);
 			
 		}
 		return new int[]{(int) (2*FactorN),(int) (2*FactorN)};
@@ -117,12 +130,7 @@ public class ChordNetworkInitializer implements INetworkInitializer
 		
 		return Math.abs(address1._identifier - address2._identifier);
 	}
-	
-	public static int[] GetNeededDimenstions(List<IPeer> listOfPeers )
-	{
-		return new int[]{0,0};
-	}
-	
+			
 	public static List<IPeer> ConnectPeers(ArrayList<IPeer> listOfPeers, int identifierBitLength )
 	{
 		List<IPeer> sortedPeers = SortPeersIncreasingByIdentifier(listOfPeers); 
@@ -152,7 +160,7 @@ public class ChordNetworkInitializer implements INetworkInitializer
 			{
 				ChordAddress address = (ChordAddress)neighbour.GetNetworkAdress();
 				
-				if(address._identifier ==fg.Identifier)
+				if(address._identifier ==fg.EffectiveIdentifier && pr != neighbour)
 				{
 					//now build a connection
 					pr.AddNeighbour(neighbour);
@@ -217,10 +225,12 @@ public class ChordNetworkInitializer implements INetworkInitializer
 		
 		if(identifierStep <= 0) return result;
 		
-		for(long i=0; i<identifierStep; i = identifierStep + i)
+		for(long identifier=0; identifier<=maxIdentifierValue; identifier = identifier + identifierStep)
 		{
-			Peer p = new Peer();							
-			p.SetNetworkAdress( new ChordAddress(0,0,i));
+			Peer p = new Peer();	
+			p.SetPeerID(identifier);
+			p.SetNetworkAdress(new ChordAddress(0,0,identifier));
+			result.add(p);
 		}
 		
 		return result;
@@ -236,7 +246,7 @@ public class ChordNetworkInitializer implements INetworkInitializer
 		for(int i=0; i<number; i++)
 		{
 			Peer p = new Peer();
-			
+			p.SetPeerID(i);
 			long identifier = GetNextRandomPeerIdentifier( alreadyUsedIdentifier, minIdentifierValue, maxIdentifierValue);
 			alreadyUsedIdentifier.add(identifier);
 			p.SetNetworkAdress( new ChordAddress(0,0,identifier));

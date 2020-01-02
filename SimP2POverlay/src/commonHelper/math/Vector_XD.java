@@ -13,7 +13,8 @@ public class Vector_XD extends EuclideanPoint implements IVector
 	//creates an 2 dimenstional vector with the given length
 	public static IVector TwoDimFromAngleAndLength(double phiXY, double length)
 	{		
-		double angleInradiants = phiXY/360.0*2 * Math.PI;
+		double angleInradiants = phiXY * 2 * Math.PI;
+		angleInradiants = angleInradiants/360.0;
 		double xComp = length * Math.sin(angleInradiants);
 		double yComp = length * Math.cos(angleInradiants);
 	
